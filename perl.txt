@@ -1,0 +1,31 @@
+# rpm_history: epkg_build
+
+# Download and unpack source code
+wget http://www.cpan.org/src/5.0/perl-5.18.2.tar.gz
+tar fxvz perl-5.18.2.tar.gz
+
+# Build package
+pushd perl-5.18.2
+./Configure -des \
+  -Dcc=/usr/bin/gcc \
+  -Dccflags=-fPIC \
+  -Dldflags=-Wl,-R/usr/local/lib \
+  -Doptimize=-O3 \
+  -Dprefix=/usr/local \
+  -Dinstallprefix=/var/tmp/perl-5.18.2 \
+  -Dprivlib=/usr/local/lib/perl5/5.18 \
+  -Dsitelib=/usr/local/lib/perl5/site_perl/5.18 \
+  -Dperladmin=webmaster@zeuscat.com \
+  -Dmyhostname=www \
+  -Dmydomain=.zeuscat.com \
+  -Dcf_email=webmaster@zeuscat.com \
+  -Dotherlibdirs=/packages/encap/perl-5.18.2/lib/perl5/5.18
+make
+make test
+make install
+popd
+
+# Install package
+sudo chown -R root:root /var/tmp/perl-5.18.2
+sudo mv /var/tmp/perl-5.18.2 /packages/encap
+sudo epkg perl-5.18.2
