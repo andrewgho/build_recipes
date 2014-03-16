@@ -1,0 +1,27 @@
+# rpm_history: git
+
+# Download and unpack source code
+wget -Ogit-1.9.0.tar.gz https://github.com/git/git/archive/v1.9.0.tar.gz
+tar fxvz git-1.9.0.tar.gz
+
+# Separate repository for man pages must be at same level as build directory
+git clone git://github.com/gitster/git-manpages.git
+
+# Build package
+pushd git-1.9.0
+make configure
+LDFLAGS=-Wl,-R/usr/local/lib ./configure \
+  --with-gitconfig=/usr/local/etc/gitconfig \
+  --without-tcltk \
+  --with-perl=/usr/local/bin/perl \
+  --prefix=/usr/local
+make all prefix=/usr/local
+make install quick-install-man prefix=/usr/local DESTDIR=/var/tmp/git_install
+popd
+
+# Install package
+sudo mv /var/tmp/git_install/usr/local /var/tmp/git-1.9.0
+sudo rmdir /var/tmp/git_install/usr /var/tmp/git_install
+sudo chown -R root:root /var/tmp/git-1.9.0
+sudo mv /var/tmp/git-1.9.0 /packages/encap
+sudo epkg git
