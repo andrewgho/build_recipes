@@ -1,0 +1,19 @@
+# rpm_history: epkg_build
+
+# Check out source code and build the right tag
+git co epkg-2.3.9p1
+
+# Build
+pushd epkg
+./build.sh
+popd
+
+# Bootstrap Encap/Roller directories
+sudo mkdir -p /packages/encap /packages/installed/initial
+sudo mv /usr/local /usr/local.orig
+sudo ln -s /packages/installed/initial /usr/local
+
+# Create and link Encap package
+sudo mv /var/tmp/epkg-2.3.9p1 /packages/encap/epkg-2.3.9p1
+sudo chown -R root:root /packages/encap/epkg-2.3.9p1
+sudo /packages/encap/epkg-2.3.9p1/bin/epkg epkg-2.3.9p1

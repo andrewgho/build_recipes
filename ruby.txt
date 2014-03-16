@@ -1,0 +1,10 @@
+# rpm_history: epkg_build
+
+# Download and unpack source code
+wget http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p545.tar.gz
+tar fxvz ruby-1.9.3-p545.tar.gz
+
+# Build and install package
+pushd ruby-1.9.3-p545
+vbuild -i -- --enable-shared --with-opt-dir=/usr/local/lib
+popd
