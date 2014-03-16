@@ -1,0 +1,15 @@
+# rpm_history: git
+
+# Check out source code and build the right tag
+git co cpanencap-2.0.2p2
+
+# Build
+pushd cpanencap
+git package -s -t cpanencap-2.0.2p2
+mv cpanencap-2.0.2p2.tar.gz /var/tmp
+popd
+
+# Create and link Encap package
+(cd /packages/encap && sudo tar fxvz /var/tmp/cpanencap-2.0.2p2.tar.gz)
+sudo chown -R root:root /packages/encap/cpanencap-2.0.2p2
+sudo epkg cpanencap-2.0.2p2
