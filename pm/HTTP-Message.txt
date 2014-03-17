@@ -1,0 +1,5 @@
+encap_cpan_install HTTP::Message
+
+sudo chown -R root:root pm_Encode_Locale-1.03_p5.18 pm_IO_HTML-1.00_p5.18 pm_HTTP_Date-6.02_p5.18 pm_LWP_MediaTypes-6.02_p5.18 pm_HTTP_Message-6.06_p5.18
+sudo mv pm_Encode_Locale-1.03_p5.18 pm_IO_HTML-1.00_p5.18 pm_HTTP_Date-6.02_p5.18 pm_LWP_MediaTypes-6.02_p5.18 pm_HTTP_Message-6.06_p5.18 /packages/encap
+sudo epkg pm_Encode_Locale-1.03_p5.18 pm_IO_HTML-1.00_p5.18 pm_HTTP_Date-6.02_p5.18 pm_LWP_MediaTypes-6.02_p5.18 pm_HTTP_Message-6.06_p5.18

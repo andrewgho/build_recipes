@@ -1,0 +1,7 @@
+# rpm_history: openssl-devel
+
+encap_cpan_install LWP::Protocol::https
+
+sudo chown -R root:root pm_IO_Socket_SSL-1.968_p5.18 pm_LWP_Protocol_https-6.04_p5.18 pm_Mozilla_CA-20130114_p5.18
+sudo mv pm_IO_Socket_SSL-1.968_p5.18 pm_LWP_Protocol_https-6.04_p5.18 pm_Mozilla_CA-20130114_p5.18 /packages/encap
+sudo epkg pm_IO_Socket_SSL-1.968_p5.18 pm_LWP_Protocol_https-6.04_p5.18 pm_Mozilla_CA-20130114_p5.18

@@ -1,0 +1,5 @@
+encap_cpan_install Net::HTTP
+
+sudo chown -R root:root pm_Net_HTTP-6.06_p5.18
+sudo mv pm_Net_HTTP-6.06_p5.18 /packages/encap
+sudo epkg pm_Net_HTTP-6.06_p5.18

@@ -1,0 +1,5 @@
+encap_cpan_install LWP
+
+sudo chown -R root:root pm_File_Listing-6.04_p5.18 pm_HTTP_Cookies-6.01_p5.18 pm_HTTP_Daemon-6.01_p5.18 pm_HTTP_Negotiate-6.01_p5.18 pm_WWW_RobotRules-6.02_p5.18 pm_libwww_perl-6.05_p5.18
+sudo mv pm_File_Listing-6.04_p5.18 pm_HTTP_Cookies-6.01_p5.18 pm_HTTP_Daemon-6.01_p5.18 pm_HTTP_Negotiate-6.01_p5.18 pm_WWW_RobotRules-6.02_p5.18 pm_libwww_perl-6.05_p5.18 /packages/encap
+sudo epkg pm_File_Listing-6.04_p5.18 pm_HTTP_Cookies-6.01_p5.18 pm_HTTP_Daemon-6.01_p5.18 pm_HTTP_Negotiate-6.01_p5.18 pm_WWW_RobotRules-6.02_p5.18 pm_libwww_perl-6.05_p5.18

@@ -1,0 +1,7 @@
+# rpm_history: openssl-devel
+
+encap_cpan_install Net::SSLeay
+
+sudo chown -R root:root pm_Net_SSLeay-1.58_p5.18
+sudo mv pm_Net_SSLeay-1.58_p5.18 /packages/encap
+sudo epkg pm_Net_SSLeay-1.58_p5.18
