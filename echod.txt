@@ -1,0 +1,12 @@
+# rpm_history: readline-devel
+
+# Build package
+pushd echod
+git package -t echod-2014.03.17_10.35
+tar fxvz echod-2014.03.17_10.35.tar.gz 
+sudo chown -R root:root echod-2014.03.17_10.35
+sudo mv echod-2014.03.17_10.35 /packages/encap
+popd
+
+# Link package
+sudo epkg echod-2014.03.17_10.35
