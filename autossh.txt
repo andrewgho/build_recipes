@@ -1,0 +1,4 @@
+# rpm_history: readline-devel
+
+# DESTDIR fails, so use -p to pass --prefix instead
+vbuild -p -i http://www.harding.motd.ca/autossh/autossh-1.4c.tgz
