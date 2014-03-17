@@ -1,0 +1,3 @@
+# rpm_history: openssl-devel
+
+vbuild -i http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz
