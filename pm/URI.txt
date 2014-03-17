@@ -1,0 +1,1 @@
+cpanbuild http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/URI-1.60.tar.gz
