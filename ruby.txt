@@ -1,4 +1,4 @@
-# rpm_history: epkg_build
+# rpm_history: readline-devel
 
 # Download and unpack source code
 wget http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p545.tar.gz
