@@ -1,14 +1,14 @@
 # rpm_history: git
 
 # Download and unpack source code
-wget -Ogit-1.9.0.tar.gz https://github.com/git/git/archive/v1.9.0.tar.gz
-tar fxvz git-1.9.0.tar.gz
+wget -Ogit-2.2.1.tar.gz https://github.com/git/git/archive/v2.2.1.tar.gz
+tar fxvz git-2.2.1.tar.gz
 
 # Separate repository for man pages must be at same level as build directory
 git clone git://github.com/gitster/git-manpages.git
 
 # Build package
-pushd git-1.9.0
+pushd git-2.2.1
 make configure
 LDFLAGS=-Wl,-R/usr/local/lib ./configure \
   --with-gitconfig=/usr/local/etc/gitconfig \
@@ -20,9 +20,9 @@ make install quick-install-man prefix=/usr/local DESTDIR=/var/tmp/git_install
 popd
 
 # Install package
-mv /var/tmp/git_install/usr/local /var/tmp/git-1.9.0
+mv /var/tmp/git_install/usr/local /var/tmp/git-2.2.1
 rmdir /var/tmp/git_install/usr /var/tmp/git_install
-rm /var/tmp/git-1.9.0/lib/perl5/5.18/x86_64-linux/perllocal.pod
-sudo chown -R root:root /var/tmp/git-1.9.0
-sudo mv /var/tmp/git-1.9.0 /packages/encap
+rm /var/tmp/git-2.2.1/lib/perl5/5.18/x86_64-linux/perllocal.pod
+sudo chown -R root:root /var/tmp/git-2.2.1
+sudo mv /var/tmp/git-2.2.1 /packages/encap
 sudo epkg git
