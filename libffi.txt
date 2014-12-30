@@ -7,5 +7,8 @@ vbuild ftp://sourceware.org/pub/libffi/libffi-3.0.13.tar.gz
 sudo mv /packages/encap/libffi-3.0.13/lib/libffi-3.0.13/include /packages/encap/libffi-3.0.13/include
 sudo rmdir /packages/encap/libffi-3.0.13/lib/libffi-3.0.13
 
+# Remove info/dir
+sudo rm /packages/encap/libffi-3.0.13/share/info/dir
+
 # Link package
 sudo epkg libffi-3.0.13

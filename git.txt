@@ -20,8 +20,9 @@ make install quick-install-man prefix=/usr/local DESTDIR=/var/tmp/git_install
 popd
 
 # Install package
-sudo mv /var/tmp/git_install/usr/local /var/tmp/git-1.9.0
-sudo rmdir /var/tmp/git_install/usr /var/tmp/git_install
+mv /var/tmp/git_install/usr/local /var/tmp/git-1.9.0
+rmdir /var/tmp/git_install/usr /var/tmp/git_install
+rm /var/tmp/git-1.9.0/lib/perl5/5.18/x86_64-linux/perllocal.pod
 sudo chown -R root:root /var/tmp/git-1.9.0
 sudo mv /var/tmp/git-1.9.0 /packages/encap
 sudo epkg git
