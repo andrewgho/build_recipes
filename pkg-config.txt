@@ -1,0 +1,5 @@
+# rpm_history: nc
+
+vbuild -i http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz -- \
+  --with-pc-path=/usr/local/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig \
+  --with-internal-glib

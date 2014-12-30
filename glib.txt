@@ -1,0 +1,8 @@
+# rpm_history: automake
+
+wget http://ftp.gnome.org/pub/gnome/sources/glib/2.43/glib-2.43.2.tar.xz
+tar fxvJ glib-2.43.2.tar.xz
+
+pushd glib-2.43.2
+vbuild -i
+popd

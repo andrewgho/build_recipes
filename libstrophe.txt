@@ -1,0 +1,13 @@
+# rpm_history: automake
+# requires: libxml2, libtool
+
+wget -Olibstrophe-0.8.7.tar.gz \
+  https://github.com/strophe/libstrophe/archive/0.8.7.tar.gz
+tar fxvz libstrophe-0.8.7.tar.gz
+
+pushd libstrophe-0.8.7
+mkdir -p m4
+libtoolize
+./bootstrap.sh
+vbuild -i -- --with-libxml2
+popd

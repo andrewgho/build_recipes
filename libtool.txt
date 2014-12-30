@@ -1,0 +1,4 @@
+# rpm_history: automake
+
+vbuild -i http://ftpmirror.gnu.org/libtool/libtool-2.4.4.tar.gz
+sudo rm /packages/encap/libtool-2.4.4/share/info/dir /usr/local/share/info/dir
