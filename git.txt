@@ -23,6 +23,8 @@ popd
 mv /var/tmp/git_install/usr/local /var/tmp/git-2.2.1
 rmdir /var/tmp/git_install/usr /var/tmp/git_install
 rm /var/tmp/git-2.2.1/lib/perl5/5.18/x86_64-linux/perllocal.pod
+mv /var/tmp/git-2.2.1/lib/perl5/site_perl/5.18.2 \
+   /var/tmp/git-2.2.1/lib/perl5/site_perl/5.18
 sudo chown -R root:root /var/tmp/git-2.2.1
 sudo mv /var/tmp/git-2.2.1 /packages/encap
 sudo epkg git
