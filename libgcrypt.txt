@@ -1,0 +1,5 @@
+# rpm_history: automake
+# requires: libgpg-error
+
+vbuild -i ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.6.2.tar.bz2
+sudo rm -f /packages/encap/libgcrypt-1.6.2/share/info/dir

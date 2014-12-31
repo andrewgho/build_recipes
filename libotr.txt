@@ -1,0 +1,4 @@
+# rpm_history: automake
+# requires: libgcrypt
+
+vbuild -i https://otr.cypherpunks.ca/libotr-4.1.0.tar.gz

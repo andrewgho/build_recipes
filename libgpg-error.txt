@@ -1,0 +1,4 @@
+# rpm_history: automake
+
+vbuild -i ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.17.tar.bz2
+sudo rm -f /packages/encap/libgpg_error-1.17/share/info/dir
