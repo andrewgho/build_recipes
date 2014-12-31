@@ -1,4 +1,6 @@
 # rpm_history: automake
 # requires: libxml2, libstrophe, glib, curl
+# optional: libotr
 
-vbuild -i http://www.profanity.im/profanity-0.4.5.tar.gz
+vbuild -i http://www.profanity.im/profanity-0.4.5.tar.gz -- \
+  --without-xscreensaver

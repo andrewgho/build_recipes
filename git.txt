@@ -1,4 +1,5 @@
 # rpm_history: git
+# optional: curl
 
 # Download and unpack source code
 wget -Ogit-2.2.1.tar.gz https://github.com/git/git/archive/v2.2.1.tar.gz
