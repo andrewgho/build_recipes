@@ -1,0 +1,3 @@
+# rpm_history: automake
+
+vbuild -i http://downloads.ghostscript.com/public/ghostscript-9.15.tar.gz
