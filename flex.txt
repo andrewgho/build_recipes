@@ -1,0 +1,8 @@
+# rpm_history: automake
+
+vbuild http://downloads.sourceforge.net/project/flex/flex-2.5.39.tar.gz
+rm /var/tmp/flex-2.5.39/share/info/dir
+
+sudo chown -R root:root /var/tmp/flex-2.5.39
+sudo mv /var/tmp/flex-2.5.39 /packages/encap/flex-2.5.39
+sudo epkg flex-2.5.39

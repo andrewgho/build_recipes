@@ -1,0 +1,59 @@
+# rpm_history: automake
+# requires: flex, bison
+# install_doc: https://www.tug.org/tetex/tetex-src/INSTALL
+
+# Download sources (now in obsolete section!)
+wget http://ctan.mirrors.hoobly.com/obsolete/systems/unix/teTeX/3.0/distrib/tetex-src-3.0.tar.gz
+wget http://ctan.mirrors.hoobly.com/obsolete/systems/unix/teTeX/3.0/distrib/tetex-texmf-3.0po.tar.gz
+
+# Create package directory and unpack texmf resources into it
+sudo mkdir /packages/encap/tetex-3.0
+sudo chown `id -un`:`id -gn` /packages/encap/tetex-3.0
+mkdir -p /packages/encap/tetex-3.0/share/texmf
+mkdir -p /packages/encap/tetex-3.0/share/texmf-var
+(cd /packages/encap/tetex-3.0/share/texmf &&
+ tar fxvz "$OLDPWD"/tetex-texmf-3.0po.tar.gz)
+
+# Temporarily symlink texmf resources into /usr/local
+sudo ln -s /packages/encap/tetex-3.0/share/texmf /usr/local/share/texmf
+sudo ln -s /packages/encap/tetex-3.0/share/texmf-var /usr/local/share/texmf-var
+
+# Unpack sources and configure
+tar fxvz tetex-src-3.0.tar.gz
+pushd tetex-src-3.0
+./configure --prefix=/usr/local --without-x --disable-multiplatform
+
+# Apply patch to texk/web2c/cpascal.h as described in:
+# https://www.tug.org/pipermail/tex-live/2006-May/010250.html
+# (also required for texk/dvipsk/afm2tfm.c)
+for f in texk/web2c/cpascal.h texk/dvipsk/afm2tfm.c; do
+    cp "$f" "$f.orig"
+    awk '{ print } /^#include "config.h"$/ { print "#define getline pascal_getline" }' "$f.orig" > "$f"
+done
+
+# Build and install into package directory
+make
+make install prefix=/packages/encap/tetex-3.0 \
+             texmf=/packages/encap/tetex-3.0/share/texmf
+
+# Undo temporary texmf resource symlinks
+popd
+sudo rm /usr/local/share/texmf /usr/local/share/texmf-var
+
+sudo chown -R root:root /packages/encap/tetex-3.0
+sudo epkg tetex-3.0
+
+# Previous build notes from FreeBSD:
+echo > /dev/null <<end
+    # Precreate encap directory, untar tetex-texmf into share/texmf
+    ./configure --prefix=/usr/local --without-x --disable-multiplatform
+    # Temporarily make symlinks:
+    ln -s /usr/local/encap/tetex-3.0/share/texmf /usr/local/share/texmf
+    ln -s /usr/local/encap/tetex-3.0/share/texmf-var /usr/local/share/texmf-var
+    make install \
+        prefix=/usr/local/encap/tetex-2.0.2 \
+        texmf=/usr/local/encap/tetex-2.0.2/share/texmf
+    # Replace the ls-R files with real /bin/ls -R:
+    /bin/ls -aR | grep -v '^\.\.*$' > ls-R.new
+    # Add header from ls-R, get rid of ls-R.new from ls-R listing.
+end
