@@ -1,0 +1,215 @@
+#!/bin/sh
+# ==========================================================================
+# nginx - start and stop nginx
+# Andrew Ho (andrew@zeuscat.com)
+#
+# This script starts, stops, or reports on the status of nginx.
+# ==========================================================================
+
+PATH=/usr/local/bin:/usr/bin:/bin
+export PATH
+
+ME=`basename "$0"`
+PS="ps h -o user,pid,ppid,size,rss,command"
+PS_1="ps -o user,pid,ppid,size,rss,command"
+
+PROGRAM=nginx
+START="/usr/bin/env -i /usr/local/sbin/nginx"
+PIDFILE="/var/www/log/$PROGRAM/$PROGRAM.pid"
+
+# Set up success/error functions (use CentOS ones if found, or barebones ones)
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+else
+    echo_success() { echo -n "OK"; }
+    echo_warning() { echo -n "WARN"; }
+    echo_failure() { echo -n "FAILED"; }
+fi
+
+
+# --------------------------------------------------------------------------
+# Perform operation requested
+
+ERROR=1
+ARGV="$@"
+if [ "x$ARGV" = "x" ] ; then 
+    ARGS="help"
+fi
+
+for ARG in $@ $ARGS
+do
+    # Check for pidfile
+    if [ -f "$PIDFILE" ] ; then
+        PID=`cat "$PIDFILE"`
+        if [ "x$PID" != "x" ]; then
+            STATUS="$PROGRAM (pid $PID) running"
+            RUNNING=1
+        else
+            STATUS="$PROGRAM (pid $PID?) not running"
+            RUNNING=0
+        fi
+    else
+        STATUS="$PROGRAM (no pid file) not running"
+        RUNNING=0
+    fi
+
+    case $ARG in
+      start|tsart)
+        echo -n $"Starting $PROGRAM: "
+        if [ $RUNNING -eq 1 ]; then
+            echo_warning
+            echo
+            echo "$ME $ARG: $PROGRAM (pid $PID) already running" 1>&2
+            continue
+        fi
+        if [ "x$PRESTART" != x ]; then
+            $PRESTART
+        fi
+        if [ "x$SU" = x ]; then
+            output=`$START 2>&1`
+        else
+            output=`$SU -c "$START" 2>&1`
+        fi
+        if [ $? -eq 0 ]; then
+            echo_success
+            echo
+            ERROR=0
+        else
+            echo_failure
+            echo
+            echo "$ME $ARG: $PROGRAM could not be started" 1>&2
+            echo "$output" 1>&2
+            ERROR=3
+        fi
+        ;;
+      stop|tsop)
+        echo -n $"Stopping $PROGRAM: "
+        if [ $RUNNING -eq 0 ] || [ "x$PID" = x ]; then
+            echo_warning
+            echo
+            echo "$ME $ARG: $STATUS" 1>&2
+            continue
+        fi
+        output=`kill "$PID" 2>&1`
+        if [ $? -eq 0 ]; then
+            if [ -e "$PIDFILE" ]; then
+                if [ -h "$PIDFILE" ]; then
+                    cat /dev/null > "$PIDFILE"
+                else
+                    rm "$PIDFILE"
+                fi
+            fi
+            echo_success
+            echo
+            ERROR=0
+        else
+            echo_failure
+            echo
+            echo "$ME $ARG: $PROGRAM could not be stopped" 1>&2
+            echo "$output" 1>&2
+            ERROR=4
+        fi
+        ;;
+      restart|retsart)
+        if [ $RUNNING -eq 1 ]; then
+            "$0" stop
+            if [ $? -eq 0 ]; then
+                "$0" start
+                if [ $? -eq 0 ]; then ERROR=0; else ERROR=6; fi
+            else
+                ERROR=6
+            fi
+        else
+            echo "$ME $ARG: $STATUS" 1>&2
+            "$0" start
+            if [ $? -eq 0 ]; then ERROR=0; else ERROR=6; fi
+        fi
+        ;;
+      reload)
+        if [ $RUNNING -eq 1 ] && [ x"$PID" != x ]; then
+            "$0" configtest
+            if [ $? -eq 0 ]; then
+                kill -HUP "$PID"
+                if [ $? -ne 0 ]; then
+                    echo "$ME $ARG: could not send SIGHUP to process $PID" 1>&2
+                    echo_failure
+                    echo
+                    ERROR=7
+                else
+                    echo_success
+                    echo
+                    ERROR=0
+                fi
+            else
+                echo "$ME $ARG: $0 configtest returned error code $ERROR" 1>&2
+                echo_failure
+                echo
+                ERROR=7
+            fi
+        else
+            echo "$ME $ARG: $STATUS" 1>&2
+            "$0" start
+            if [ $? -eq 0 ]; then
+                echo_success
+                echo
+                ERROR=0
+            else
+                echo "$ME $ARG: $0 start returned error code $?" 1>&2
+                echo_failure
+                echo
+                ERROR=7
+            fi
+        fi
+        ;;
+      configtest)
+        if [ "x$PRESTART" != x ]; then
+            $PRESTART
+        fi
+        if [ "x$SU" = x ]; then
+            output=`$START -t 2>&1`
+        else
+            output=`$SU -c "$START -t" 2>&1`
+        fi
+        if [ $? -eq 0 ]; then
+            echo "$ME $ARG: nginx configuration okay" 1>&2
+            ERROR=0
+        else
+            echo "$ME $ARG: nginx configuration error" 1>&2
+            echo "$output" 1>&2
+            ERROR=8
+        fi
+        ;;
+      status|tsatus)
+        if [ "x$PID" != "x" ]; then
+            output=`$PS -p "$PID" --ppid "$PID"`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: pid $PID found in $PIDFILE, but no pids found" 1>&2
+                ERROR=9
+            else
+                $PS_1 | head -1
+                echo "$output"
+                ERROR=0
+            fi
+        else
+            output=`$PS -e | grep $PROGRAM | egrep -v '( grep | status$)'`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: no pid found in $PIDFILE" 1>&2
+                ERROR=9
+            else
+                echo "$ME $ARG: no pid found in $PIDFILE; some possible pids:" 1>&2
+                $PS_1 | head -1 1>&2
+                echo "$output" 1>&2
+                ERROR=9
+            fi
+        fi
+        ;;
+      *)
+        echo "usage: $ME (start|stop|restart|status)" 1>&2
+        ;;
+    esac
+done
+
+exit $ERROR
+
+
+# ==========================================================================

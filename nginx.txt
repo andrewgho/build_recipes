@@ -1,0 +1,36 @@
+wget http://nginx.org/download/nginx-1.8.0.tar.gz
+tar fxvz nginx-1.8.0.tar.gz
+
+pushd nginx-1.8.0
+./configure \
+--prefix=/usr/local \
+--conf-path=/var/www/conf/nginx.conf \
+--error-log-path=/var/www/log/nginx/error_log \
+--pid-path=/var/www/log/nginx/nginx.pid \
+--lock-path=/var/www/log/nginx/nginx.lock \
+--http-log-path=/var/www/log/nginx/access_log \
+--http-client-body-temp-path=/var/tmp/nginx/client_body_temp \
+--http-proxy-temp-path=/var/tmp/nginx/proxy_temp \
+--http-fastcgi-temp-path=/var/tmp/nginx/fastcgi_temp \
+--http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp \
+--http-scgi-temp-path=/var/tmp/nginx/scgi_temp \
+--user=nginx \
+--group=nginx \
+--with-http_ssl_module \
+--with-cc-opt=-I/usr/local/include \
+--with-ld-opt=-Wl,-R/usr/local/lib
+make
+make install DESTDIR=/var/tmp/nginx_install
+popd
+
+mv /var/tmp/nginx_install/usr/local /var/tmp/nginx-1.8.0
+mkdir /var/tmp/nginx-1.8.0/share
+mv /var/tmp/nginx_install/var/www /var/tmp/nginx-1.8.0/share/nginx
+mv /var/tmp/nginx-1.8.0/html /var/tmp/nginx-1.8.0/share/nginx
+rmdir /var/tmp/nginx_install/{var/log/nginx,var/log,var,usr,}
+mkdir -p /var/tmp/nginx-1.8.0/etc/init.d
+cp /path/to/nginx /var/tmp/nginx-1.8.0/etc/init.d
+
+sudo chown -R root:root /var/tmp/nginx-1.8.0
+sudo mv /var/tmp/nginx-1.8.0 /packages/encap
+sudo epkg nginx-1.8.0
