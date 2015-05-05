@@ -5,10 +5,6 @@ tar fxvz percona-server-5.6.23-72.1.tar.gz
 
 pushd percona-server-5.6.23-72.1
 
-# Change /usr/bin/perl to /usr/local/bin/perl
-grep -lr '^#!/usr/bin/perl' . |
- xargs -i perl -pi -e 's,/usr/bin/perl,/usr/local/bin/perl,g" {}
-
 cmake . \
 -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
 -DCMAKE_INSTALL_RPATH=/usr/local/lib \
@@ -16,13 +12,15 @@ cmake . \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 -DCMAKE_INSTALL_PREFIX=/usr/local \
 -DINSTALL_LAYOUT=STANDALONE \
--DINSTALL_SCRIPTDIR=/usr/local/bin \
--DINSTALL_MYSQLSHAREDIR=/usr/local/share/mysql \
--DINSTALL_MYSQLTESTDIR=/usr/local/share/mysql/mysql-test \
--DINSTALL_SQLBENCHDIR=/usr/local/share/mysql/sql-bench \
--DINSTALL_SUPPORTFILESDIR=/usr/local/share/mysql/support-files \
--DINSTALL_DOCDIR=/usr/local/share/mysql/docs \
--DINSTALL_DOCREADMEDIR=/usr/local/share/mysql/README \
+-DINSTALL_SCRIPTDIR=bin \
+-DINSTALL_MYSQLSHAREDIR=share/mysql \
+-DINSTALL_MYSQLTESTDIR=share/mysql/mysql-test \
+-DINSTALL_SQLBENCHDIR=share/mysql/sql-bench \
+-DINSTALL_SUPPORTFILESDIR=share/mysql/support-files \
+-DINSTALL_MANDIR=share/man \
+-DINSTALL_INFODIR=share/info \
+-DINSTALL_DOCDIR=share/mysql/docs \
+-DINSTALL_DOCREADMEDIR=share/mysql/README \
 -DSYSCONFDIR=/etc \
 -DWITH_INNOBASE_STORAGE_ENGINE=ON \
 -DWITH_HEAP_STORAGE_ENGINE=ON \
@@ -30,34 +28,47 @@ cmake . \
 -DDEFAULT_CHARSET=utf8 \
 -DDEFAULT_COLLATION=utf8_general_ci \
 -DENABLED_LOCAL_INFILE=1 \
--DMYSQL_DATADIR=/var/mysql \
--DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
+-DMYSQL_DATADIR=/var/lib/mysql \
+-DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock \
 -DCOMPILATION_COMMENT="Percona Server 5.6 (GPL), built from source" \
 -DWITH_EMBEDDED_SERVER=OFF \
 -DWITH_EXTRA_CHARSETS=all \
 -DWITH_LIBWRAP=OFF \
--DWITH_READLINE=1 \
 -DWITH_SSL=system \
 -DWITH_ZLIB=system \
 -DFEATURE_SET=community
 
 make -j4 VERBOSE=1
 make install DESTDIR=/var/tmp/mysql_install
+
 popd
 
+# Munge package bits
+rm -r /var/tmp/mysql_install/usr/local/data
 mv /var/tmp/mysql_install/usr/local /var/tmp/mysql-5.6.23_percona_server_rel72.1
 rmdir /var/tmp/mysql_install/usr /var/tmp/mysql_install
-(cd /var/tmp/mysql-5.6.23_percona_server_rel72.1 &&
- mv docs share/info && mv man share && rm -r data)
 
-mkdir -p /var/tmp/mysql-5.6.23_percona_server_rel72.1/etc/init.d
-cp /path/to/mysqld /var/tmp/mysql-5.6.23_percona_server_rel72.1/etc/init.d
+# Change shebang lines #!/usr/bin/perl to #!/usr/local/bin/perl
+grep -lr '^#!/usr/bin/perl' /var/tmp/mysql-5.6.23_percona_server_rel72.1 |
+xargs sed -i '1s,^#!/usr/bin/perl,#!/usr/local/bin/perl,'
 
 # Make libmysqlclient also available, by linking libperconaserverclient to it 
 (cd /var/tmp/mysql-5.6.23_percona_server_rel72.1/lib &&
- for file in `ls | grep libperconaserverclient`; do
+ for file in *libperconaserverclient*; do
    ln -s "$file" `echo "$file" | sed -e 's/perconaserver/mysql/g'`; done)
 
+# Add init.d script
+mkdir -p /var/tmp/mysql-5.6.23_percona_server_rel72.1/etc/init.d
+cp /path/to/mysqld /var/tmp/mysql-5.6.23_percona_server_rel72.1/etc/init.d
+
+# Link the package
 sudo chown -R root:root /var/tmp/mysql-5.6.23_percona_server_rel72.1
 sudo mv /var/tmp/mysql-5.6.23_percona_server_rel72.1 /packages/encap
 sudo epkg mysql-5.6.23_percona_server_rel72.1
+
+# Create base database directory and schemas
+sudo rm -f /etc/my.cnf
+sudo rm -rf /var/lib/mysql
+sudo mkdir /var/lib/mysql
+sudo chown mysql:mysql /var/lib/mysql
+sudo mysql_install_db --user=mysql --basedir=/usr/local --ldata=/var/lib/mysql
