@@ -1,0 +1,173 @@
+#!/bin/bash
+# ==========================================================================
+# mysqld - start and stop MySQL database server
+# Andrew Ho (andrew@zeuscat.com)
+#
+# This script starts, stops, or reports on the status of a MySQL
+# database server. The exit codes returned are:
+#
+#     0 - operation completed successfully
+#     1 - internal logic error
+#     2 - usage error
+#     3 - server could not be started
+#     4 - server could not be stopped
+#     5 - server could not be started during a restart
+#     6 - server could not be restarted during a restart
+#     9 - server process could not be found during a status check
+#
+# When multiple arguments are given, only the error from the last one is
+# reported. This script also cleanses your environment and replaces it
+# as nicely as possible. Some commands (for example, the ps invocation)
+# may be Linux specific. It tries to use RedHat/CentOS style status
+# output, if available.
+# ==========================================================================
+
+ME=`/usr/bin/env -i PATH=/bin:/usr/bin basename "$0"`
+PS="/bin/ps h -o user,pid,ppid,size,rss,command"
+PS_1="/bin/ps -o user,pid,ppid,size,rss,command"
+CAT=/bin/cat
+GREP=/bin/grep
+HEAD=/usr/bin/head
+
+PIDFILE="/var/mysql/mysql/mysql.pid"
+SU="/bin/su -s /bin/sh mysql -c"
+RC="/usr/bin/env -i /usr/local/share/mysql/support-files/mysql.server"
+RC_ARGS_START=start
+RC_ARGS_STOP=stop
+RC_ARGS_STATUS=status
+
+# Set up success/error functions (use CentOS ones if found, or barebones ones)
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+else
+    echo_success() { echo "OK"; }
+    echo_failure() { echo "FAILED"; }
+fi
+
+
+# --------------------------------------------------------------------------
+# Perform operation requested
+
+ERROR=1
+ARGV="$@"
+if [ "x$ARGV" = "x" ] ; then 
+    ARGS="help"
+fi
+
+for ARG in $@ $ARGS
+do
+    # Check for pidfile
+    if [ -f "$PIDFILE" ] ; then
+        PID=`$CAT "$PIDFILE"`
+        if [ "x$PID" != "x" ]; then
+            if ($PS_1 -p "$PID" > /dev/null); then
+                STATUS="mysqld (pid $PID) running"
+                RUNNING=1
+            else
+                STATUS="mysqld (pid $PID) not running"
+                RUNNING=0
+            fi
+        else
+            STATUS="mysqld (pid $PID?) not running"
+            RUNNING=0
+        fi
+    else
+        STATUS="mysqld (no pid file) not running"
+        RUNNING=0
+    fi
+
+    case $ARG in
+      start|tsart)
+        echo -n $"Starting mysqld: "
+        if [ $RUNNING -eq 1 ]; then
+            echo_warning
+            echo
+            echo "$ME $ARG: mysqld (pid $PID) already running" 1>&2
+            continue
+        fi
+        rm -f "$PIDFILE" > /dev/null 2>&1
+        output=`$SU "$RC $RC_ARGS_START" 2>&1`
+        if [ $? -eq 0 ]; then
+            echo_success
+            echo
+            ERROR=0
+        else
+            echo_failure
+            echo
+            echo "$ME $ARG: mysqld could not be started" 1>&2
+            echo "$output" 1>&2
+            ERROR=3
+        fi
+        ;;
+      stop|tsop)
+        echo -n $"Stopping mysqld (pid $PID): "
+        if [ $RUNNING -eq 0 ] || [ "x$PID" = x ]; then
+            rm -f "$PIDFILE" > /dev/null 2>&1
+            echo_warning
+            echo
+            echo "$ME $ARG: $STATUS" 1>&2
+            continue
+        fi
+        output=`$SU "$RC $RC_ARGS_STOP" 2>&1`
+        if [ $? -eq 0 ]; then
+            rm -f "$PIDFILE"
+            echo_success
+            echo
+            ERROR=0
+        else
+            echo_failure
+            echo
+            echo "$ME $ARG: mysqld could not be stopped" 1>&2
+            echo "$output" 1>&2
+            ERROR=4
+        fi
+        ;;
+      restart|retsart)
+        if [ $RUNNING -eq 1 ]; then
+            "$0" stop
+            if [ $? -eq 0 ]; then
+                "$0" start
+                if [ $? -eq 0 ]; then ERROR=0; else ERROR=6; fi
+            else
+                ERROR=6
+            fi
+        else
+            echo "$ME $ARG: $STATUS" 1>&2
+            "$0" start
+            if [ $? -eq 0 ]; then ERROR=0; else ERROR=6; fi
+        fi
+        ;;
+      status|tsatus)
+        if [ "x$PID" != "x" ]; then
+            output=`$PS -p "$PID"`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: pid $PID found in $PIDFILE, but no pids found" 1>&2
+                ERROR=9
+            else
+                $PS_1 | $HEAD -1
+                echo "$output"
+                ERROR=0
+            fi
+        else
+            output=`$PS -e | $GREP mysqld | $GREP -v grep`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: no pid found in $PIDFILE" 1>&2
+                ERROR=9
+            else
+                echo "$ME $ARG: no pid found in $PIDFILE; some possible pids:" 1>&2
+                $PS_1 | $HEAD -1 1>&2
+                echo "$output" 1>&2
+                ERROR=9
+            fi
+        fi
+        ;;
+      *)
+        echo "usage: $ME (start|stop|restart|status)" 1>&2
+        ;;
+    esac
+done
+
+exit $ERROR
+
+
+# ==========================================================================
