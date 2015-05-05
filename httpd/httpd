@@ -6,6 +6,8 @@
 # This script calls /usr/local/bin/apachectl script with its argument,
 # and passes the return status back up. It tries to use RedHat/CentOS
 # style status output, if available.
+#
+# chkconfig: 345 95 5
 # ==========================================================================
 
 PATH=/usr/local/bin:/usr/bin:/bin

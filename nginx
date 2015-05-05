@@ -4,6 +4,8 @@
 # Andrew Ho (andrew@zeuscat.com)
 #
 # This script starts, stops, or reports on the status of nginx.
+#
+# chkconfig: 345 98 2
 # ==========================================================================
 
 PATH=/usr/local/bin:/usr/bin:/bin

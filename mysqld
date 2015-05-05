@@ -20,6 +20,8 @@
 # as nicely as possible. Some commands (for example, the ps invocation)
 # may be Linux specific. It tries to use RedHat/CentOS style status
 # output, if available.
+#
+# chkconfig: 345 92 8
 # ==========================================================================
 
 ME=`/usr/bin/env -i PATH=/bin:/usr/bin basename "$0"`
