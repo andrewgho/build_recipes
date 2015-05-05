@@ -1,0 +1,18 @@
+sudo groupadd -g 200 httpd
+sudo useradd -c 'Apache User' -d /nonexistent-directory -g httpd -M -u 200 -s /sbin/nologin httpd
+
+sudo groupadd -g 201 mysql
+sudo useradd -c 'MySQL User' -d /nonexistent-directory -g mysql -M -u 201 -s /sbin/nologin mysql
+
+sudo groupadd -g 202 nginx
+sudo useradd -c 'Nginx User' -d /nonexistent-directory -g nginx -M -u 202 nginx
+
+sudo groupadd -g 10000 zeuscat
+sudo usermod -a -G zeuscat andrew
+sudo usermod -a -G zeuscat holly
+
+sudo groupadd -g 10001 zeuswww
+sudo usermod -a -G zeuswww httpd
+sudo usermod -a -G zeuswww nginx
+sudo usermod -a -G zeuswww andrew
+sudo usermod -a -G zeuswww holly
