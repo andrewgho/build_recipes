@@ -29,7 +29,7 @@ CAT=/bin/cat
 GREP=/bin/grep
 HEAD=/usr/bin/head
 
-PIDFILE="/var/mysql/mysql/mysql.pid"
+PIDFILE=/var/lib/mysql/`hostname`.pid
 SU="/bin/su -s /bin/sh mysql -c"
 RC="/usr/bin/env -i /usr/local/share/mysql/support-files/mysql.server"
 RC_ARGS_START=start
