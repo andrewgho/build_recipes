@@ -1,0 +1,30 @@
+# requires: httpd, pm_ExtUtils_XSBuilder, pm_Parse_RecDescent
+
+wget http://mirrors.sonic.net/apache/httpd/libapreq/libapreq2-2.13.tar.gz
+tar fxvz libapreq2-2.13.tar.gz
+
+pushd libapreq2-2.13
+./configure && make
+make install DESTDIR=/var/tmp/libapreq2_install
+popd
+
+mv /var/tmp/libapreq2_install/usr/local /var/tmp/libapreq2-2.13
+rmdir /var/tmp/libapreq2_install/usr /var/tmp/libapreq2_install
+
+sudo chown -R root:root /var/tmp/libapreq2-2.13
+sudo mv /var/tmp/libapreq2-2.13 /packages/encap
+sudo epkg libapreq2-2.13
+
+pushd libapreq2-2.13/glue/perl
+cpanbuild pm_libapreq2-2.13_p5.20
+make
+make test
+sudo mkdir /packages/encap/pm_libapreq2-2.13_p5.20
+sudo chown `id -un`:`id -gn` /packages/encap/pm_libapreq2-2.13_p5.20
+make install
+popd
+
+# Remove perllocal.pod
+sudo chown -R root:root /packages/encap/pm_libapreq2-2.13_p5.20
+sudo mv /packages/encap/pm_libapreq2-2.13_p5.20 /packages/encap
+sudo epkg pm_libapreq2-2.13_p5.20
