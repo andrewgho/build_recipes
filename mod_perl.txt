@@ -1,0 +1,32 @@
+# requires: apr, apr_util, httpd, perl
+
+wget https://www.apache.org/dist/perl/mod_perl-2.0.8.tar.gz
+tar fxvz mod_perl-2.0.8.tar.gz
+
+# TODO: make test fails miserably with core dumps
+pushd mod_perl-2.0.8
+perl Makefile.PL \
+MP_APXS=/usr/local/bin/apxs \
+MP_CCOPTS="-fPIC -g -O2 -L/usr/local/lib -Wl,-R/usr/local/lib" \
+MP_COMPAT_1X=0 MP_DEBUG=0 MP_MAINTAINER=0 MP_TRACE=0
+make
+make test
+make install DESTDIR=/var/tmp/mod_perl_install
+popd
+
+mv /var/tmp/mod_perl_install/usr/local /var/tmp/pm_mod_perl-2.0.8_p5.20
+mv /var/tmp/mod_perl_install/var/tmp/perl-5.20.2/lib/perl5 \
+   /var/tmp/pm_mod_perl-2.0.8_p5.20/lib
+rm /var/tmp/pm_mod_perl-2.0.8_p5.20/lib/perl5/5.20/x86_64-linux/perllocal.pod
+rmdir /var/tmp/mod_perl_install/var/tmp/perl-5.20.2/lib
+mv /var/tmp/mod_perl_install/var/tmp/perl-5.20.2/bin \
+   /var/tmp/pm_mod_perl-2.0.8_p5.20
+mkdir /var/tmp/pm_mod_perl-2.0.8_p5.20/share
+mv /var/tmp/mod_perl_install/var/tmp/perl-5.20.2/man \
+   /var/tmp/pm_mod_perl-2.0.8_p5.20/share
+rmdir /var/tmp/mod_perl_install/{usr,var/tmp/perl-5.20.2,var/tmp,/var}
+rmdir /var/tmp/mod_perl_install
+
+sudo chown -R root:root /var/tmp/pm_mod_perl-2.0.8_p5.20
+sudo mv /var/tmp/pm_mod_perl-2.0.8_p5.20 /packages/encap
+sudo epkg pm_mod_perl-2.0.8_p5.20

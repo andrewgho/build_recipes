@@ -1,0 +1,18 @@
+# requires: apr
+
+wget https://archive.apache.org/dist/apr/apr-util-1.5.4.tar.gz
+tar fxvz apr-util-1.5.4.tar.gz
+
+pushd apr-util-1.5.4
+LDFLAGS="-L/usr/local/lib -R/usr/local/lib" \
+./configure --prefix=/usr/local --with-apr=/usr/local/bin/apr-1-config
+make CFLAGS=-fPIC
+make install DESTDIR=/var/tmp/apr_util_install
+popd
+
+mv /var/tmp/apr_util_install/usr/local /var/tmp/apr_util-1.5.4
+rmdir /var/tmp/apr_util_install/usr /var/tmp/apr_util_install
+
+sudo chown -R root:root /var/tmp/apr_util-1.5.4
+sudo mv /var/tmp/apr_util-1.5.4 /packages/encap
+sudo epkg apr_util-1.5.4

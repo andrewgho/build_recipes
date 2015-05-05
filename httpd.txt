@@ -1,0 +1,111 @@
+# requires: apr, apr-util
+
+# Build and link GNU libtool, which will get unlinked later
+wget https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz
+tar fxvz libtool-2.4.6.tar.gz
+pushd libtool-2.4.6
+LDFLAGS='-Wl,-R/usr/local/lib' ./configure
+make
+make install DESTDIR=/var/tmp/libtool_install
+popd
+mv /var/tmp/libtool_install/usr/local /var/tmp/libtool-2.4.6
+rmdir /var/tmp/libtool_install/usr /var/tmp/libtool_install
+rm /var/tmp/libtool-2.4.6/share/info/dir
+sudo chown -R root:root /var/tmp/libtool-2.4.6
+sudo mv /var/tmp/libtool-2.4.6 /packages/encap
+sudo epkg libtool-2.4.6
+
+# Fetch Apache httpd source
+wget https://archive.apache.org/dist/httpd/httpd-2.2.29.tar.gz
+tar fxvz httpd-2.2.29.tar.gz 
+
+pushd httpd-2.2.29
+
+# Set custom file/director layout
+cp config.layout config.layout.orig
+cat >>config.layout <<'end'
+<Layout zeuscat>
+    prefix:        /usr/local
+    exec_prefix:   ${prefix}
+    bindir:        ${exec_prefix}/bin
+    sbindir:       ${exec_prefix}/bin
+    libdir:        ${exec_prefix}/lib
+    libexecdir:    ${exec_prefix}/lib/apache2
+    mandir:        ${prefix}/share/man
+    datadir:       ${prefix}/share/apache2
+    sysconfdir:    ${datadir}/conf
+    installbuilddir: ${exec_prefix}/share/apache2/build
+    errordir:      ${datadir}/error
+    iconsdir:      ${exec_prefix}/share/apache2/icons
+    htdocsdir:     /nonexistent-directory
+    manualdir:     ${datadir}/manual
+    cgidir:        /nonexistent-directory
+    includedir:    ${prefix}/include/apache2
+    localstatedir: /var/www
+    runtimedir:    ${localstatedir}/log
+    logfiledir:    ${localstatedir}/log
+    proxycachedir: ${localstatedir}/proxy
+</Layout>
+end
+
+# Run configure
+LDFLAGS="-L/usr/local/lib -Wl,-R/usr/local/lib" \
+CFLAGS="-fPIC -DDEFAULT_ERRORLOG='\"log/error_log\"' -DDEFAULT_SCOREBOARD='\"log/scoreboard\"'" \
+./configure \
+--enable-layout=zeuscat \
+--prefix=/usr/local \
+--with-mpm=prefork \
+--enable-modules=all \
+--enable-mods-shared=all \
+--with-ssl=/usr/local \
+--with-apr=/usr/local/bin/apr-1-config \
+--with-apr-util=/usr/local/bin/apu-1-config \
+--with-z=/usr/local \
+--enable-disk-cache \
+--enable-mem-cache \
+--enable-proxy \
+--enable-authn-alias \
+--enable-authz-owner \
+--enable-file-cache \
+--enable-cache \
+--enable-cgid \
+--enable-dav-lock \
+--enable-ssl
+
+# More custom settings for configuration file location
+cp include/ap_config_auto.h include/ap_config_auto.h.orig
+cat >>include/ap_config_auto.h <<'end'
+#undef SERVER_CONFIG_FILE
+#define SERVER_CONFIG_FILE "/var/www/conf/httpd.conf"
+end
+
+# Use GNU libtool we linked; built-in libtool fails to create module .so files
+perl -pi.orig -e \
+'$_ = "LIBTOOL = /usr/local/bin/libtool \$(LTFLAGS)\n" if /^LIBTOOL = /' \
+build/config_vars.mk
+
+# Do the build and install to tempdir
+make
+make install DESTDIR=/var/tmp/httpd_install
+
+popd
+
+# Get rid of temporary installation artifacts
+mv /var/tmp/httpd_install/usr/local /var/tmp/httpd-2.2.29
+rm -r /var/tmp/httpd_install/nonexistent-directory
+rmdir /var/tmp/httpd_install/{usr,var/www/log,var/www,var}
+rmdir /var/tmp/httpd_install
+
+# Enhance apachectl and include init script from build_recipes
+mv /var/tmp/httpd-2.2.29/bin/apachectl /var/tmp/httpd-2.2.29/bin/apachectl.orig
+mkdir -p /var/tmp/httpd-2.2.29/etc/init.d
+cp /path/to/httpd/apachectl /var/tmp/httpd-2.2.29/bin
+cp /path/to/httpd/httpd /var/tmp/httpd-2.2.29/etc/init.d
+
+# Create package
+sudo chown -R root:root /var/tmp/httpd-2.2.29
+sudo mv /var/tmp/httpd-2.2.29 /packages/encap
+sudo epkg httpd-2.2.29
+
+# Unlink GNU libtool (not all packages build better with it)
+sudo epkg -r libtool-2.4.6

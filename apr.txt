@@ -1,0 +1,13 @@
+wget https://archive.apache.org/dist/apr/apr-1.5.2.tar.gz
+tar fxvz apr-1.5.2.tar.gz
+
+pushd apr-1.5.2
+./configure --prefix=/usr/local --datadir='${prefix}/share' \
+--enable-shared=no --enable-threads --enable-nonportable-atomics
+make CFLAGS=-fPIC
+make install prefix=/ DESTDIR=/var/tmp/apr-1.5.2
+popd
+
+sudo chown -R root:root /var/tmp/apr-1.5.2
+sudo mv /var/tmp/apr-1.5.2 /packages/encap
+sudo epkg apr-1.5.2

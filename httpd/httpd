@@ -1,0 +1,66 @@
+#!/bin/bash
+# ==========================================================================
+# httpd - init.d script for to start and stop Apache webserver
+# Andrew Ho (andrew@zeuscat.com)
+#
+# This script calls /usr/local/bin/apachectl script with its argument,
+# and passes the return status back up. It tries to use RedHat/CentOS
+# style status output, if available.
+# ==========================================================================
+
+PATH=/usr/local/bin:/usr/bin:/bin
+ME=`basename "$0"`
+
+# Set up success/error functions (use CentOS ones if found, or barebones ones)
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+else
+    echo_success() { echo "OK"; }
+    echo_failure() { echo "FAILED"; }
+fi
+
+# If start, stop, or restart (or typos), print out the appropriate message
+case "$1" in
+  start|tsart)
+    echo -n "Starting httpd: "
+    ;;
+  stop|tsop)
+    echo -n "Stopping httpd: "
+    ;;
+  restart|retsart)
+    echo -n "Restarting httpd: "
+    ;;
+esac
+
+# Forward control to apachectl script and capture its error code
+output=`/usr/local/bin/apachectl "$1" 2>&1`
+error=$?
+
+# Print success or failure message
+if [ $error -eq 0 ]; then
+    case "$1" in
+      start|tsart|stop|tsop|restart|retsart)
+        echo_success
+        echo
+        ;;
+      *)
+        echo "$output"
+        ;;
+    esac
+else
+    case "$1" in
+      start|tsart|stop|tsop|restart|retsart)
+        echo_failure
+        echo
+        echo "$output" 1>&2
+        ;;
+      *)
+        echo "$output" 1>&2
+        ;;
+    esac
+fi
+
+exit $error
+
+
+# ==========================================================================

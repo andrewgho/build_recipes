@@ -1,0 +1,203 @@
+#!/bin/sh
+# ==========================================================================
+# apachectl - start and stop Apache webserver
+# Andrew Ho (andrew@zeuscat.com)
+#
+# This script is based on the apachectl script that ships with Apache.
+# See "apachectl help" for usage information. The exit codes returned are:
+#
+#       0 - operation completed successfully
+#       1 - internal logic error
+#       2 - usage error
+#       3 - httpd could not be started
+#       4 - httpd could not be stopped
+#       5 - httpd could not be started during a restart
+#       6 - httpd could not be restarted during a restart
+#       7 - httpd could not be restarted during a graceful restart
+#       8 - configuration syntax error
+#       9 - could not find PID for httpd
+#
+# When multiple arguments are given, only the error from the last one is
+# reported. This script also cleanses your environment and replaces it
+# as nicely as possible. Some commands (for example, the ps invocation)
+# may be Linux specific.
+#
+# The original apachectl script may still be available as apachectl.orig.
+# ==========================================================================
+
+PIDFILE=/var/www/log/httpd.pid
+HTTPD=/usr/local/bin/httpd
+
+ME=`/bin/basename $0`
+PS="/bin/ps h -o user,pid,ppid,size,rss,command"
+PS_1="/bin/ps -o user,pid,ppid,size,rss,command"
+PS_PID="/bin/ps h -o pid"
+CAT=/bin/cat
+GREP=/bin/grep
+HEAD=/usr/bin/head
+
+
+# --------------------------------------------------------------------------
+# Perform requested operation
+
+ERROR=1
+ARGV="$@"
+if [ "x$ARGV" = "x" ] ; then
+    ARGS="help"
+fi
+
+for ARG in $@ $ARGS
+do
+    # Check for pidfile
+    if [ -f "$PIDFILE" ] ; then
+        PID=`$CAT "$PIDFILE"`
+        if [ "x$PID" = "x" ]; then
+            STATUS="httpd (empty pid file) not running"
+            RUNNING=0
+        else
+            pidcheck=`$PS_PID "$PID"`
+            if [ "x$pidcheck" != "x" ] && [ $pidcheck -eq $PID ]; then
+                STATUS="httpd (pid $PID) running"
+                RUNNING=1
+            else
+                STATUS="httpd (pid $PID did not match $pidcheck) not running"
+                RUNNING=0
+            fi
+        fi
+    else
+        STATUS="httpd (no pid file) not running"
+        RUNNING=0
+    fi
+
+    case $ARG in
+      start|tsart)
+        if [ $RUNNING -eq 1 ]; then
+            echo "$ME $ARG: httpd (pid $PID) already running" 1>&2
+            continue
+        fi
+        if $HTTPD ; then
+            echo "$ME $ARG: httpd started" 1>&2
+            ERROR=0
+        else
+            echo "$ME $ARG: httpd could not be started" 1>&2
+            ERROR=3
+        fi
+        ;;
+      stop|tsop)
+        if [ $RUNNING -eq 0 ]; then
+            echo "$ME $ARG: $STATUS" 1>&2
+            continue
+        fi
+        if kill $PID ; then
+            echo "$ME $ARG: httpd stopped" 1>&2
+            ERROR=0
+        else
+            echo "$ME $ARG: httpd could not be stopped" 1>&2
+            ERROR=4
+        fi
+        ;;
+      restart)
+        if [ $RUNNING -eq 0 ]; then
+            echo "$ME $ARG: httpd not running, trying to start" 1>&2
+            if $HTTPD ; then
+                echo "$ME $ARG: httpd started" 1>&2
+                ERROR=0
+            else
+                echo "$ME $ARG: httpd could not be started" 1>&2
+                ERROR=5
+            fi
+        else
+            if $HTTPD -t >/dev/null 2>&1; then
+                if $HTTPD -k restart ; then
+                    echo "$ME $ARG: httpd restarted" 1>&2
+                    ERROR=0
+                else
+                    echo "$ME $ARG: httpd could not be restarted" 1>&2
+                    ERROR=6
+                fi
+            else
+                echo "$ME $ARG: configuration broken, ignoring restart" 1>&2
+                echo "$ME $ARG: (run '$ME configtest' for details)" 1>&2
+                ERROR=6
+            fi
+        fi
+        ;;
+      graceful)
+        if [ $RUNNING -eq 0 ]; then
+            echo "$ME $ARG: httpd not running, trying to start" 1>&2
+            if $HTTPD ; then
+                echo "$ME $ARG: httpd started" 1>&2
+                ERROR=0
+            else
+                echo "$ME $ARG: httpd could not be started" 1>&2
+                ERROR=5
+            fi
+        else
+            if $HTTPD -t >/dev/null 2>&1; then
+                if $HTTPD -k graceful ; then
+                    echo "$ME $ARG: httpd gracefully restarted" 1>&2
+                    ERROR=0
+                else
+                    echo "$ME $ARG: httpd could not be gracefully restarted" 1>&2
+                    ERROR=7
+                fi
+            else
+                echo "$ME $ARG: configuration broken, ignoring restart" 1>&2
+                echo "$ME $ARG: (run '$ME configtest' for details)" 1>&2
+                ERROR=7
+            fi
+        fi
+        ;;
+      status|tsatus)
+        if [ "x$PID" != "x" ]; then
+            output=`$PS -g "$PID" | $GREP httpd`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: pid $PID found in $PIDFILE, but no pids found" 1>&2
+                ERROR=9
+            else
+                $PS_1 | $HEAD -1
+                echo "$output"
+                ERROR=0
+            fi
+        else
+            output=`$PS -e | $GREP httpd | $GREP -v grep`
+            if [ "x$output" = "x" ]; then
+                echo "$ME $ARG: no pid found in $PIDFILE" 1>&2
+                ERROR=9
+            else
+                echo "$ME $ARG: no pid found in $PIDFILE; some possible pids:" 1>&2
+                $PS_1 | $HEAD -1 1>&2
+                echo "$output" 1>&2
+                ERROR=9
+            fi
+        fi
+        ;;
+      configtest)
+        if $HTTPD -t; then
+            :
+        else
+            ERROR=8
+        fi
+        ;;
+      *)
+        echo "usage: $ME (start|stop|restart|status|graceful|configtest|help)" 1>&2
+        $CAT <<EOF 1>&2
+
+start      - start httpd
+stop       - stop httpd
+restart    - restart httpd by sending a SIGHUP or start if not running
+status     - display pids of current Apache processes
+graceful   - do a graceful restart by sending a SIGUSR1 or start if not running
+configtest - do a configuration syntax test
+help       - this screen
+
+EOF
+        ERROR=2
+        ;;
+    esac
+done
+
+exit $ERROR
+
+
+# ==========================================================================
