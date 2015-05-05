@@ -1,0 +1,19 @@
+# Apply patch to
+#     - Enable compression option 
+#     - Not exit when the disk is full
+#     - handle symlinks more carefully
+
+wget http://fossies.org/linux/www/cronolog-1.6.2.tar.gz
+tar fxvz cronolog-1.6.2.tar.gz
+
+pushd cronolog-1.6.2
+patch -p0 < /path/to/cronolog.patch  # fix path!
+LDFLAGS=-Wl,-R/usr/local/lib VERSION=1.6.2p ./configure
+make
+make install prefix=/var/tmp/cronolog-1.6.2p
+rm /var/tmp/cronolog-1.6.2p/info/dir
+popd
+
+sudo chown -R root:root /var/tmp/cronolog-1.6.2p
+sudo mv /var/tmp/cronolog-1.6.2p /packages/encap
+sudo epkg cronolog-1.6.2p
