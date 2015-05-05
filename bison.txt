@@ -1,8 +1,8 @@
 # rpm_history: automake
 
-vbuild http://ftpmirror.gnu.org/bison/bison-3.0.tar.gz
-rm /var/tmp/bison-3.0/share/info/dir
+vbuild https://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.gz
+rm /var/tmp/bison-3.0.4/share/info/dir
 
-sudo chown -R root:root /var/tmp/bison-3.0
-sudo mv /var/tmp/bison-3.0 /packages/encap/bison-3.0
-sudo epkg bison-3.0
+sudo chown -R root:root /var/tmp/bison-3.0.4
+sudo mv /var/tmp/bison-3.0.4 /packages/encap/bison-3.0.4
+sudo epkg bison-3.0.4
