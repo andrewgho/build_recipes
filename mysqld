@@ -32,7 +32,7 @@ HEAD=/usr/bin/head
 PIDFILE=/var/lib/mysql/`hostname`.pid
 SU="/bin/su -s /bin/sh mysql -c"
 RC="/usr/bin/env -i /usr/local/share/mysql/support-files/mysql.server"
-RC_ARGS_START=start
+RC_ARGS_START="start --skip-networking"
 RC_ARGS_STOP=stop
 RC_ARGS_STATUS=status
 
