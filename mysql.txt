@@ -72,3 +72,7 @@ sudo rm -rf /var/lib/mysql
 sudo mkdir /var/lib/mysql
 sudo chown mysql:mysql /var/lib/mysql
 sudo mysql_install_db --user=mysql --basedir=/usr/local --ldata=/var/lib/mysql
+
+# Make sure MySQL server starts up automatically
+sudo ln -s /usr/local/etc/init.d/mysqld /etc/init.d/mysqld
+sudo chkconfig --add mysqld

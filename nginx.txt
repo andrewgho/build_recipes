@@ -34,3 +34,7 @@ cp /path/to/nginx /var/tmp/nginx-1.8.0/etc/init.d
 sudo chown -R root:root /var/tmp/nginx-1.8.0
 sudo mv /var/tmp/nginx-1.8.0 /packages/encap
 sudo epkg nginx-1.8.0
+
+# Make sure nginx starts up automatically
+sudo ln -s /usr/local/etc/init.d/nginx /etc/init.d/nginx
+sudo chkconfig --add nginx
