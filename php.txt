@@ -1,0 +1,36 @@
+wget -Ophp-5.5.24.tar.gz \
+http://us1.php.net/get/php-5.5.24.tar.gz/from/this/mirror
+tar fxvz php-5.5.24.tar.gz
+
+pushd php-5.5.24
+./configure CFLAGS=-fPIC LDFLAGS=-Wl,-R/usr/local/lib \
+--mandir=/usr/local/share/man \
+--without-pear \
+--with-apxs2=/usr/local/bin/apxs \
+--with-mysql \
+--with-pcre-regex \
+--enable-mbstring \
+--enable-mbregex \
+--with-config-file-path=/var/www/conf/php.ini \
+--with-config-file-scan-dir=/var/www/conf/php.d
+
+make
+make test
+
+# "make install" expects an Apache config file to edit in place, so add one
+mkdir -p /var/tmp/php_install/usr/local/share/apache2/conf
+cp /var/www/conf/httpd.conf /var/tmp/php_install/usr/local/share/apache2/conf
+
+make install INSTALL_ROOT=/var/tmp/php_install
+
+# cp php-production.ini /var/www/conf/php.ini
+
+popd
+
+rm -rf /var/tmp/php_install/usr/local/share/apache2
+mv /var/tmp/php_install/usr/local /var/tmp/php-5.5.24
+rmdir /var/tmp/php_install/usr /var/tmp/php_install
+
+sudo chown -R root:root /var/tmp/php-5.5.24
+sudo mv /var/tmp/php-5.5.24 /packages/encap
+sudo epkg php-5.5.24
