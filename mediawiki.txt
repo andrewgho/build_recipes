@@ -1,0 +1,21 @@
+# Download and unpack distribution
+wget http://releases.wikimedia.org/mediawiki/1.24/mediawiki-1.24.2.tar.gz
+tar fxvz mediawiki-1.24.2.tar.gz
+
+# Move it to /var/www/htdocs/zeuscat.com/mw
+mv /var/www/htdocs/zeuscat.com/mw /var/www/htdocs/zeuscat.com/mw.orig
+mv mediawiki-1.24.2 /var/www/htdocs/zeuscat.com/mw
+
+# Create database
+mysql -u root -p <<end
+CREATE DATABASE zeuswiki;
+CREATE USER 'zeuswiki'@'localhost' IDENTIFIED BY 'zeuswiki_p';
+GRANT ALL PRIVILEGES ON zeuswiki.* TO 'zeuswiki'@'localhost';
+FLUSH PRIVILEGES;
+end
+
+# Export from old MediaWiki
+php dumpBackup.php --full > /var/tmp/zeuswiki.xml
+
+# Import into new MediaWiki
+php importDump.php --conf ../LocalSettings.php /path/to/zeuswiki.xml zeuswiki
