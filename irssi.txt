@@ -1,0 +1,17 @@
+wget http://www.irssi.org/files/irssi-0.8.17.tar.gz
+tar fxvz irssi-0.8.17.tar.gz
+
+pushd irssi-0.8.17
+./configure LDFLAGS=-Wl,-R/usr/local/lib
+make
+make install DESTDIR=/var/tmp/irssi_install
+popd
+
+mv /var/tmp/irssi_install/usr/local /var/tmp/irssi-0.8.17
+mv /var/tmp/irssi_install/var/tmp/perl-5.20.2/lib /var/tmp/irssi-0.8.17
+rmdir /var/tmp/irssi_install{/var/tmp/perl-5.20.2,/var/tmp,/var,/usr,}
+rm /var/tmp/irssi-0.8.17/lib/perl5/5.20/x86_64-linux/perllocal.pod
+
+sudo chown -R root:root /var/tmp/irssi-0.8.17
+sudo mv /var/tmp/irssi-0.8.17 /packages/encap
+sudo epkg irssi-0.8.17
