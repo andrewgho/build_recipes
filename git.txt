@@ -26,6 +26,8 @@ rmdir /var/tmp/git_install/usr /var/tmp/git_install
 rm /var/tmp/git-2.4.0/lib/perl5/5.20/x86_64-linux/perllocal.pod
 mv /var/tmp/git-2.4.0/lib/perl5/site_perl/5.20.2 \
    /var/tmp/git-2.4.0/lib/perl5/site_perl/5.20
+mv /var/tmp/git-2.4.0/lib/perl5/site_perl/[GE]* \
+   /var/tmp/git-2.4.0/lib/perl5/site_perl/5.20/
 sudo chown -R root:root /var/tmp/git-2.4.0
 sudo mv /var/tmp/git-2.4.0 /packages/encap
 sudo epkg git
