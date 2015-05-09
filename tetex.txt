@@ -40,6 +40,10 @@ make install prefix=/packages/encap/tetex-3.0 \
 popd
 sudo rm /usr/local/share/texmf /usr/local/share/texmf-var
 
+# Fix info file location and remove info/dir
+rm /packages/encap/tetex-3.0/info/dir
+mv /packages/encap/tetex-3.0/info /packages/encap/tetex-3.0/share/
+
 sudo chown -R root:root /packages/encap/tetex-3.0
 sudo epkg tetex-3.0
 
