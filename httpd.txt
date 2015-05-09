@@ -110,6 +110,11 @@ sudo chown -R root:root /var/tmp/httpd-2.2.29
 sudo mv /var/tmp/httpd-2.2.29 /packages/encap
 sudo epkg httpd-2.2.29
 
+# Make run-time Apache directories
+sudo mkdir /var/www
+sudo mkdir /var/www/{conf,empty,htdocs,log}
+sudo chmod 711 /var/www/empty
+
 # Make sure Apache starts up automatically
 sudo ln -s /usr/local/etc/init.d/httpd /etc/init.d/httpd
 sudo chkconfig --add httpd
