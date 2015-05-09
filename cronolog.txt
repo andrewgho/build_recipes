@@ -12,6 +12,8 @@ LDFLAGS=-Wl,-R/usr/local/lib VERSION=1.6.2p ./configure
 make
 make install prefix=/var/tmp/cronolog-1.6.2p
 rm /var/tmp/cronolog-1.6.2p/info/dir
+mkdir /var/tmp/cronolog-1.6.2p/share
+mv /var/tmp/cronolog-1.6.2p/info /var/tmp/cronolog-1.6.2p/share/
 popd
 
 sudo chown -R root:root /var/tmp/cronolog-1.6.2p
