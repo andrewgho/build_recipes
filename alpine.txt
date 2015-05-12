@@ -1,0 +1,17 @@
+# sudo yum install pam-devel
+
+wget ftp://ftp.cac.washington.edu/alpine/alpine.tar.gz
+tar fxvz alpine.tar.gz
+
+pushd alpine-2.00
+./configure --without-tcl LDFLAGS=-Wl,-R/usr/local/lib
+make
+make install DESTDIR=/var/tmp/alpine_install
+popd
+
+mv /var/tmp/alpine_install/usr/local /var/tmp/alpine-2.00
+rmdir /var/tmp/alpine_install/usr /var/tmp/alpine_install
+
+sudo chown -R root:root /var/tmp/alpine-2.00
+sudo mv /var/tmp/alpine-2.00 /packages/encap
+sudo epkg alpine-2.00
