@@ -1,0 +1,42 @@
+wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+tar fxvz install-tl-unx.tar.gz
+
+pushd install-tl-20150411
+sudo mkdir /usr/local/texlive
+sudo chown `id -un`:`id -gn` /usr/local/texlive
+./install-tl
+
+In installer, set letter size, then install: O P I
+
+mkdir /var/tmp/texlive-2014
+sudo mv /usr/local/texlive /var/tmp/texlive-2014
+
+mkdir /var/tmp/texlive-2014/bin
+for f in /var/tmp/texlive-2014/texlive/2014/bin/x86_64-linux/*; do
+    t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
+    b=`basename "$f"`
+    ln -s "$t" "/var/tmp/texlive-2014/bin/$b"
+done
+
+mkdir /var/tmp/texlive-2014/{share,share/info}
+for f in /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/info/*.info; do
+    t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
+    b=`basename "$f"`
+    ln -s "$t" "/var/tmp/texlive-2014/share/info/$b"
+done
+
+mkdir /var/tmp/texlive-2014/share/{man,man/man1,man/man5}
+for f in find /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man1/*.1; do
+    t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
+    b=`basename "$f"`
+    ln -s "$t" "/var/tmp/texlive-2014/share/man/man1/$b"
+done
+for f in find /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man5/*.5; do
+    t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
+    b=`basename "$f"`
+    ln -s "$t" "/var/tmp/texlive-2014/share/man/man5/$b"
+done
+
+sudo chown -R root:root /var/tmp/texlive-2014
+sudo mv /var/tmp/texlive-2014 /packages/encap
+sudo epkg texlive-2014
