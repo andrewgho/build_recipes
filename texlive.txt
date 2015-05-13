@@ -5,8 +5,8 @@ pushd install-tl-20150411
 sudo mkdir /usr/local/texlive
 sudo chown `id -un`:`id -gn` /usr/local/texlive
 ./install-tl
-
-In installer, set letter size, then install: O P I
+# In installer, set letter size, then install: O P R I
+popd
 
 mkdir /var/tmp/texlive-2014
 sudo mv /usr/local/texlive /var/tmp/texlive-2014
