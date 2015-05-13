@@ -1,0 +1,11 @@
+wget https://pypi.python.org/packages/source/p/pyserial/pyserial-2.7.tar.gz
+tar fxvz pyserial-2.7.tar.gz
+
+pushd pyserial-2.7
+python setup.py build
+python setup.py install --prefix=/var/tmp/py_pyserial-2.7_py2.6 --record=/dev/null
+popd
+
+sudo chown -R root:root /var/tmp/py_pyserial-2.7_py2.6
+sudo mv /var/tmp/py_pyserial-2.7_py2.6 /packages/encap
+sudo epkg py_pyserial-2.7_py2.6

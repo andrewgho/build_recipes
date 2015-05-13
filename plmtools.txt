@@ -1,0 +1,9 @@
+wget 'http://downloads.sourceforge.net/project/plmtools/plmtools/plmtools-0.0.3-r1/plmtools-0.0.3-r1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fplmtools%2F&ts=1431502246&use_mirror=tcpdiag'
+tar fxvz plmtools-0.0.3-r1.tar.gz
+
+pushd plmtools-0.0.3-r1
+make
+sudo mkdir /packages/encap/plmtools-0.0.3_r1
+sudo mkdir /packages/encap/plmtools-0.0.3_r1/bin
+sudo cp insteon plmcat plmsend plmtty x10toinst /packages/encap/plmtools-0.0.3_r1/bin
+sudo epkg plmtools-0.0.3_r1
