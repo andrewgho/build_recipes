@@ -1,0 +1,31 @@
+wget -Omisterhouse-stable.zip \
+https://github.com/hollie/misterhouse/archive/stable.zip
+unzip misterhouse-stable.zip
+
+mkdir ~/mrhouse
+mv misterhouse-stable.zip ~/mrhouse/misterhouse
+
+# Fix shebang lines to point at Encap installed Perl
+grep -lr '^#!/usr/bin/perl' ~/mrhouse/misterhouse |
+xargs sed -i '1s,^#!/usr/bin/perl,#!/usr/local/bin/perl,'
+
+mkdir ~/mrhouse/local ~/mrhouse/local/code ~/mrhouse/local/data
+
+cat > ~/mrhouse/local/mh.private.ini <<'end'
+http_port=8888
+code_dir=$Pgm_Root/../local/code
+data_dir=$Pgm_Root/../local/data
+gd=0
+tk=0
+end
+
+cat > ~/bin/mrhouse <<'end' && chmod 755 ~/bin/mrhouse
+#!/bin/sh
+# mrhouse - run MisterHouse
+# Andrew Ho (andrew@zeuscat.com)
+
+export mh_parms=~/mrhouse/local/mh.private.ini
+cd ~/mrhouse/misterhouse/bin && ./mhl
+end
+
+(cd ~/mrhouse && misterhouse/bin/set_password -user admin -password 'secret')
