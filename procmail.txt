@@ -1,0 +1,11 @@
+wget ftp://ftp.ucsb.edu/pub/mirrors/procmail/procmail-3.22.tar.gz
+tar fxvz procmail-3.22.tar.gz
+
+pushd procmail-3.22
+grep -Rl getline . | xargs perl -pi.orig -e 's/\bgetline\b/formisc_getline/g'
+make all BASENAME=/usr/local MANDIR=/usr/local/share/man LOCKINGTEST=.
+sudo make install install-suid BASENAME=/var/tmp/procmail-3.22 MANDIR=/var/tmp/procmail-3.22/share/man
+popd
+
+sudo mv /var/tmp/procmail-3.22 /packages/encap
+sudo epkg procmail-3.22
