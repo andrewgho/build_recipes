@@ -1,0 +1,17 @@
+wget http://download.oracle.com/berkeley-db/db-6.1.23.NC.tar.gz
+tar fxvz db-6.1.23.NC.tar.gz
+
+pushd db-6.1.23.NC/build_unix
+LDFLAGS=-Wl,-R/usr/local/lib ../dist/configure --prefix=/usr/local --enable-cxx
+make
+make install DESTDIR=/var/tmp/db_install
+popd
+
+mv /var/tmp/db_install/usr/local /var/tmp/db-6.1.23.NC
+rmdir /var/tmp/db_install/usr /var/tmp/db_install
+mkdir /var/tmp/db-6.1.23.NC/share /var/tmp/db-6.1.23.NC/share/doc
+mv /var/tmp/db-6.1.23.NC/docs /var/tmp/db-6.1.23.NC/share/doc/berkeleydb
+
+sudo chown -R root:root /var/tmp/db-6.1.23.NC/
+sudo mv /var/tmp/db-6.1.23.NC /packages/encap
+sudo epkg db-6.1.23.NC
