@@ -26,12 +26,12 @@ for f in /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/info/*.info; do
 done
 
 mkdir /var/tmp/texlive-2014/share/{man,man/man1,man/man5}
-for f in find /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man1/*.1; do
+for f in /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man1/*.1; do
     t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
     b=`basename "$f"`
     ln -s "$t" "/var/tmp/texlive-2014/share/man/man1/$b"
 done
-for f in find /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man5/*.5; do
+for f in /var/tmp/texlive-2014/texlive/2014/texmf-dist/doc/man/man5/*.5; do
     t=`echo "$f" | sed 's,^/var/tmp/texlive-2014,/usr/local,'`
     b=`basename "$f"`
     ln -s "$t" "/var/tmp/texlive-2014/share/man/man5/$b"
