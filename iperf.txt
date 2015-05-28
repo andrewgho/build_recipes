@@ -1,0 +1,2 @@
+wget -Oiperf-3.0.11.tar.gz https://github.com/esnet/iperf/archive/3.0.11.tar.gz
+vbuild -i iperf-3.0.11.tar.gz
