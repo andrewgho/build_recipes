@@ -46,3 +46,4 @@ sudo chmod 711 /var/tmp/nginx
 # Make sure nginx starts up automatically
 sudo ln -s /usr/local/etc/init.d/nginx /etc/init.d/nginx
 sudo chkconfig --add nginx
+sudo chkconfig nginx on

@@ -118,3 +118,4 @@ sudo chmod 711 /var/www/empty
 # Make sure Apache starts up automatically
 sudo ln -s /usr/local/etc/init.d/httpd /etc/init.d/httpd
 sudo chkconfig --add httpd
+sudo chkconfig httpd on
