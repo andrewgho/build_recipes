@@ -1,0 +1,3 @@
+wget http://libbsd.freedesktop.org/releases/libbsd-0.7.0.tar.xz
+tar fxvJ libbsd-0.7.0.tar.xz
+(cd libbsd-0.7.0 && vbuild -i)
