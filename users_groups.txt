@@ -1,11 +1,18 @@
 sudo groupadd -g 200 httpd
-sudo useradd -c 'Apache User' -d /nonexistent-directory -g httpd -M -u 200 -s /sbin/nologin httpd
+sudo useradd -r -c 'Apache User' -d /nonexistent-directory -g httpd -M -u 200 -s /sbin/nologin httpd
 
 sudo groupadd -g 201 mysql
-sudo useradd -c 'MySQL User' -d /nonexistent-directory -g mysql -M -u 201 -s /sbin/nologin mysql
+sudo useradd -r -c 'MySQL User' -d /nonexistent-directory -g mysql -M -u 201 -s /sbin/nologin mysql
 
 sudo groupadd -g 202 nginx
-sudo useradd -c 'Nginx User' -d /nonexistent-directory -g nginx -M -u 202 nginx
+sudo useradd -r -c 'Nginx User' -d /nonexistent-directory -g nginx -M -u 202 nginx
+
+sudo groupadd -g 203 opendkim
+sudo useradd -r -c 'OpenDKIM User' -d /var/run/opendkim -g opendkim -M -u 203 opendkim -s /sbin/nologin
+sudo usermod -a -G mail opendkim
+sudo mkdir /var/run/opendkim
+sudo chown opendkim:opendkim /var/run/opendkim
+sudo chmod 700 /var/run/opendkim
 
 sudo groupadd -g 10000 zeuscat
 sudo usermod -a -G zeuscat andrew

@@ -1,0 +1,44 @@
+# requires: libbsd, CentOS sendmail-devel
+
+wget http://softlayer.dl.sourceforge.net/project/opendkim/opendkim-2.10.3.tar.gz
+tar fxvz opendkim-2.10.3.tar.gz
+
+pushd opendkim-2.10.3
+./configure --sysconfdir=/etc --localstatedir=/var \
+CFLAGS=-fPIC LDFLAGS='-L/usr/local/lib -Wl,-R/usr/local/lib'
+make
+make install DESTDIR=/var/tmp/opendkim_install
+mv /var/tmp/opendkim_install/usr/local /var/tmp/opendkim-2.10.3
+rmdir /var/tmp/opendkim_install/usr /var/tmp/opendkim_install
+mkdir /var/tmp/opendkim-2.10.3/etc /var/tmp/opendkim-2.10.3/etc/init.d
+cp contrib/init/redhat/opendkim /var/tmp/opendkim-2.10.3/etc/init.d
+chmod 755 /var/tmp/opendkim-2.10.3/etc/init.d/opendkim
+popd
+
+sudo chown -R root:root /var/tmp/opendkim-2.10.3
+sudo mv /var/tmp/opendkim-2.10.3 /packages/encap
+sudo epkg opendkim-2.10.3
+
+# Make run-time OpenDKIM directories
+sudo mkdir /etc/opendkim /etc/opendkim/keys
+sudo chown -R opendkim:opendkim /etc/opendkim
+sudo chmod -R go-wrx /etc/opendkim/keys
+
+# Make sure OpenDKIM starts up automatically
+sudo ln -s /usr/local/etc/init.d/opendkim /etc/init.d/opendkim
+sudo chkconfig --add opendkim
+sudo chkconfig opendkim on
+
+# Make keys:
+make-opendkim-keys() {
+    if [ -n "$1" ]; then
+        sudo mkdir "/etc/opendkim/keys/$1"
+        sudo opendkim-genkey -D "/etc/opendkim/keys/$1" -d "$1" -s default
+        sudo mv "/etc/opendkim/keys/$1/default.private" \
+                "/etc/opendkim/keys/$1/default"
+        sudo chown -R opendkim:opendkim "/etc/opendkim/keys/$1"
+        sudo chmod 700 "/etc/opendkim/keys/$1"
+    else
+        echo "missing required domain name" 1>&2
+    fi
+}
