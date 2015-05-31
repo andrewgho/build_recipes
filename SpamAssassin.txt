@@ -1,0 +1,20 @@
+wget http://mirrors.sonic.net/apache/spamassassin/source/Mail-SpamAssassin-3.4.1.tar.gz
+
+tar fxvz Mail-SpamAssassin-3.4.1.tar.gz
+pushd Mail-SpamAssassin-3.4.1
+
+echo postmaster@zeuscat.com | cpanencap
+perl -pi -e 's,\@sysconfdir\@,/etc,g' spamc/spamc.h.in
+make
+make test
+fgrep -rl /packages/encap/pm_Mail_SpamAssassin-3.4.1 blib |
+ grep -v '^blib/script/spamc' |
+ xargs perl -pi -e '
+    s,/packages/encap/pm_Mail_SpamAssassin-3.4.1/etc,/etc,g;
+    s,/packages/encap/pm_Mail_SpamAssassin-3.4.1/var,/var,g;
+    s,/packages/encap/pm_Mail_SpamAssassin-3.4.1,/usr/local,g;'
+
+instpack pm_Mail_SpamAssassin-3.4.1_p5.20
+make install
+
+popd
