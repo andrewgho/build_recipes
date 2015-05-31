@@ -1,3 +1,8 @@
+cpanbuild http://search.cpan.org/CPAN/authors/id/M/MA/MARKOV/MailTools-2.14.tar.gz
+cpanbuild http://search.cpan.org/CPAN/authors/id/R/RU/RURBAN/Crypt-OpenSSL-Random-0.10.tar.gz
+cpanbuild http://search.cpan.org/CPAN/authors/id/P/PE/PERLER/Crypt-OpenSSL-RSA-0.28.tar.gz
+cpanbuild http://search.cpan.org/CPAN/authors/id/J/JA/JASLONG/Mail-DKIM-0.40.tar.gz
+
 wget http://mirrors.sonic.net/apache/spamassassin/source/Mail-SpamAssassin-3.4.1.tar.gz
 
 tar fxvz Mail-SpamAssassin-3.4.1.tar.gz
