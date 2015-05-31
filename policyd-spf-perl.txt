@@ -1,0 +1,42 @@
+# http://blog.iwader.co.uk/postfix-implement-spf-record-checking/
+
+cpanbuild http://search.cpan.org/CPAN/authors/id/M/MI/MIKER/NetAddr-IP-4.075.tar.gz
+cpanbuild http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/Digest-HMAC-1.03.tar.gz
+cpanbuild http://search.cpan.org/CPAN/authors/id/N/NL/NLNETLABS/Net-DNS-0.83.tar.gz
+
+wget http://search.cpan.org/CPAN/authors/id/J/JM/JMEHNLE/net-dns-resolver-programmable/Net-DNS-Resolver-Programmable-v0.003.tar.gz
+tar fxvz Net-DNS-Resolver-Programmable-v0.003.tar.gz
+pushd Net-DNS-Resolver-Programmable-v0.003
+mv Makefile.PL Makefile.PL.orig
+cat > Makefile.PL <<end
+use ExtUtils::MakeMaker;
+WriteMakefile(NAME => "Net::DNS::Resolver::Programmable");
+end
+cpanbuild
+popd
+
+wget http://search.cpan.org/CPAN/authors/id/J/JM/JMEHNLE/mail-spf/Mail-SPF-v2.9.0.tar.gz
+tar fxvz Mail-SPF-v2.9.0.tar.gz
+pushd Mail-SPF-v2.9.0
+mv Makefile.PL Makefile.PL.orig
+cat > Makefile.PL <<end
+use ExtUtils::MakeMaker;
+WriteMakefile(NAME => "Mail::SPF");
+end
+cpanbuild
+popd
+
+cpanbuild http://search.cpan.org/CPAN/authors/id/S/SC/SCOTT/Sys-Hostname-Long-1.5.tar.gz
+
+wget https://launchpad.net/postfix-policyd-spf-perl/trunk/release2.010/+download/postfix-policyd-spf-perl-2.010.tar.gz
+tar fxvz postfix-policyd-spf-perl-2.010.tar.gz
+mkdir -p /var/tmp/policyd_spf_perl-2.010/sbin
+sed '1s,^#!/usr/bin/perl,#!/usr/local/bin/perl,'\
+ postfix-policyd-spf-perl-2.010/postfix-policyd-spf-perl >\
+ /var/tmp/policyd_spf_perl-2.010/sbin/policyd-spf-perl
+chmod 755 /var/tmp/policyd_spf_perl-2.010/sbin/policyd-spf-perl
+
+sudo chown -R root:root /var/tmp/policyd_spf_perl-2.010
+sudo mv /var/tmp/policyd_spf_perl-2.010 /packages/encap
+sudo epkg policyd_spf_perl-2.010
+
