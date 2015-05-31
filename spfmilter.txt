@@ -1,0 +1,27 @@
+wget http://acme.com/software/spfmilter/spfmilter-2.001.tar.gz
+tar fxvz spfmilter-2.001.tar.gz
+
+pushd spfmilter-2.001
+./configure --prefix=/usr/local LDFLAGS=-Wl,-R/usr/local/lib
+make
+mkdir -p /var/tmp/spfmilter-2.001/{sbin,etc/init.d,share/man/man8}
+cp spfmilter /var/tmp/spfmilter-2.001/sbin
+sed 's,/usr/sbin/spfmilter,/usr/local/sbin/spfmilter,g' rc_scripts/redhat |\
+ sed 's/! -f "$SPFMILTER_PIDFILE"/! -s "$SPFMILTER_PIDFILE"/p' >\
+ /var/tmp/spfmilter-2.001/etc/init.d/spfmilter
+chmod 755 /var/tmp/spfmilter-2.001/etc/init.d/spfmilter
+gzip - < spfmilter.8 > /var/tmp/spfmilter-2.001/share/man/man8/spfmilter.8.gz
+popd
+
+sudo chown -R root:root /var/tmp/spfmilter-2.001
+sudo mv /var/tmp/spfmilter-2.001 /packages/encap
+sudo epkg spfmilter-2.001
+
+sudo mkdir /var/run/spfmilter
+sudo chown spfmilter:spfmilter /var/run/spfmilter
+sudo touch /etc/mail/spfmilter-whitelist /etc/mail/spfmilter-fallback
+
+# Make sure spfmilter starts up automatically
+sudo ln -s /usr/local/etc/init.d/spfmilter /etc/init.d/spfmilter
+sudo chkconfig --add spfmilter
+sudo chkconfig spfmilter on
