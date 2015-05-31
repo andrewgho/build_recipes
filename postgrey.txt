@@ -37,4 +37,4 @@ sudo chown root:wheel /etc/postfix/postgrey_whitelist_{clients,recipients}
 
 sudo ln -s /usr/local/etc/init.d/postgrey /etc/init.d
 sudo chkconfig --add postgrey
-sudo chkcofnig postgrey on
+sudo chkconfig postgrey on
