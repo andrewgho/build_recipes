@@ -23,3 +23,10 @@ instpack pm_Mail_SpamAssassin-3.4.1_p5.20
 make install
 
 popd
+
+sudo mkdir /etc/mail/spamassassin /var/spamassassin
+sudo chown `id -un`:`id -gn` /etc/mail/spamassassin /var/spamassassin
+(cd /packages/encap/pm_Mail_SpamAssassin-3.4.1_p5.20/etc/mail/spamassassin &&
+ tar fc - .) | (cd /etc/mail/spamassassin && tar fxv -)
+sa-update
+sudo chown -R root:wheel /etc/mail/spamassassin /var/spamassassin
