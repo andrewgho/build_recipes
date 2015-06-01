@@ -1,0 +1,7 @@
+vbuild -i http://downloads.sourceforge.net/project/bogofilter/bogofilter-1.2.4/bogofilter-1.2.4.tar.gz
+
+# This errors and leaves an etc directory in tmpdir
+
+sudo chown -R root:root /var/tmp/bogofilter-1.2.4
+sudo mv /var/tmp/bogofilter-1.2.4 /packages/encap
+sudo epkg bogofilter-1.2.4
