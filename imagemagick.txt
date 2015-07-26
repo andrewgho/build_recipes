@@ -1,0 +1,12 @@
+vbuild -i http://download.sourceforge.net/libpng/libpng-1.6.17.tar.g
+
+wget http://www.ijg.org/files/jpegsrc.v9a.tar.gz
+tar fxvz jpegsrc.v9a.tar.gz
+vbuild -i jpeg-9a
+
+vbuild -i http://download.osgeo.org/libtiff/tiff-4.0.4.tar.gz
+
+vbuild -i \
+http://download.savannah.gnu.org/releases/freetype/freetype-2.6.tar.gz
+
+vbuild -i http://www.imagemagick.org/download/ImageMagick-6.9.1-10.tar.gz
