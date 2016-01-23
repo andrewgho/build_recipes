@@ -1,0 +1,14 @@
+# requires: bison
+
+wget -Omruby-1.1.0.zip https://github.com/mruby/mruby/archive/1.1.0.zip
+unzip mruby-1.1.0.zip
+
+pushd mruby-1.1.0
+make
+mkdir /var/tmp/mruby-1.1.0
+mv build/host/bin build/host/lib include /var/tmp/mruby-1.1.0
+popd
+
+sudo chown -R root:root /var/tmp/mruby-1.1.0
+sudo mv /var/tmp/mruby-1.1.0 /packages/encap
+sudo epkg mruby-1.1.0
