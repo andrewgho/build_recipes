@@ -4,6 +4,7 @@ wget -Omruby-1.1.0.zip https://github.com/mruby/mruby/archive/1.1.0.zip
 unzip mruby-1.1.0.zip
 
 pushd mruby-1.1.0
+sed -i.orig s/default/full-core/ build_config.rb
 make
 mkdir /var/tmp/mruby-1.1.0
 mv build/host/bin build/host/lib include /var/tmp/mruby-1.1.0
