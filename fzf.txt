@@ -1,0 +1,10 @@
+wget -Ofzf-0.12.2.tar.gz https://github.com/junegunn/fzf/archive/0.12.2.tar.gz
+tar fxvz fzf-0.12.2.tar.gz
+
+mkdir -p /var/tmp/fzf-0.12.2/{bin,share/man/man1}
+cp fzf-0.12.2/fzf /var/tmp/fzf-0.12.2/bin
+cp fzf-0.12.2/man/man1/fzf.1 /var/tmp/fzf-0.12.2/share/man/man1
+
+sudo chown -R root:root /var/tmp/fzf-0.12.2
+sudo mv /var/tmp/fzf-0.12.2 /packages/encap
+sudo epkg fzf-0.12.2

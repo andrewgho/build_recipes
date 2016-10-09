@@ -1,0 +1,18 @@
+# sudo yum -y install xz-devel
+
+wget -Othe_silver_searcher-0.32.0.tar.gz \
+    https://github.com/ggreer/the_silver_searcher/archive/0.32.0.tar.gz
+tar fxvz the_silver_searcher-0.32.0.tar.gz
+pushd the_silver_searcher-0.32.0
+
+./build.sh
+make install DESTDIR=/var/tmp/the_silver_searcher_install
+mv /var/tmp/the_silver_searcher_install/usr/local \
+   /var/tmp/the_silver_searcher-0.32.0
+rmdir /var/tmp/the_silver_searcher_install/usr \
+      /var/tmp/the_silver_searcher_install
+popd
+
+sudo chown -R root:root /var/tmp/the_silver_searcher-0.32.0
+sudo mv /var/tmp/the_silver_searcher-0.32.0 /packages/encap
+sudo epkg the_silver_searcher-0.32.0
