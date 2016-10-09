@@ -1,0 +1,16 @@
+wget http://rsnapshot.org/downloads/rsnapshot-1.4.2.tar.gz
+tar fxvz rsnapshot-1.4.2.tar.gz
+
+pushd rsnapshot-1.4.2
+./configure --with-perl=/usr/local/bin/perl
+make
+make test
+make install DESTDIR=/var/tmp/rsnapshot_install
+popd
+
+mv /var/tmp/rsnapshot_install/usr/local /var/tmp/rsnapshot-1.4.2
+rmdir /var/tmp/rsnapshot_install/usr /var/tmp/rsnapshot_install
+
+sudo chown -R root:root /var/tmp/rsnapshot-1.4.2
+sudo mv /var/tmp/rsnapshot-1.4.2 /packages/encap
+sudo epkg rsnapshot-1.4.2
