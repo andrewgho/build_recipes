@@ -1,0 +1,25 @@
+# Manual download from:
+# https://www.cyberpowersystems.com/products/software/pppe-linux-software
+
+tar fxvz powerpanel-132-x86_64.tar.gz
+
+mkdir /var/tmp/powerpanel-1.3.2
+mkdir -p /var/tmp/powerpanel-1.3.2/{sbin,etc/init.d,share/man/man8}
+cp bin/* /var/tmp/powerpanel-1.3.2/sbin
+cp conf/* script/*.sh /var/tmp/powerpanel-1.3.2/etc
+cp script/redhat_pwrstatd /var/tmp/powerpanel-1.3.2/etc/init.d/pwrstatd
+cp doc/*.8 /var/tmp/powerpanel-1.3.2/share/man/man8
+
+perl -pi -e 's,/usr/sbin/pwrstatd,/usr/local/sbin/pwrstatd,g' \
+/var/tmp/powerpanel-1.3.2/etc/init.d/pwrstatd
+
+sudo chown -R root:root /var/tmp/powerpanel-1.3.2
+sudo mv /var/tmp/powerpanel-1.3.2 /packages/encap
+sudo epkg powerpanel-1.3.2
+
+# Make sure pwrstatd starts up automatically
+sudo ln -s /usr/local/etc/init.d/pwrstatd /etc/init.d/pwrstatd
+sudo chkconfig --add pwrstatd
+sudo chkconfig pwrstatd on
+
+# Manually configure /etc/pwrstatd.conf
