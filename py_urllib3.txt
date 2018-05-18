@@ -1,0 +1,8 @@
+ 1090  wget https://pypi.python.org/packages/ee/11/7c59620aceedcc1ef65e156cc5ce5a24ef87be4107c2b74458464e437a5d/urllib3-1.22.tar.gz
+ 1091  tar fxvz urllib3-1.22.tar.gz
+ 1092  cd urllib3-1.22
+ 1093  ls
+ 1094  python setup.py install --prefix=/var/tmp/py_urllib3-1.22_py2.7 --single-version-externally-managed --record=/dev/null
+ 1095  sudo chown -R root:root /var/tmp/py_urllib3-1.22_py2.7
+ 1096  sudo mv /var/tmp/py_urllib3-1.22_py2.7 /packages/encap
+ 1097  sudo epkg py_urllib3-1.22_py2.7

@@ -1,0 +1,40 @@
+  999  which python
+ 1000  cd install
+ 1001  ls
+ 1002  wget https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz
+ 1003  tar fxvz Python-2.7.13.tgz 
+ 1004  cd Python-2.7.13
+ 1005  LDFLAGS=-Wl,-R/usr/local/lib CPPFLAGS=-I/usr/local/include CPPFLAGS=-fPIC ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared
+ 1006  make
+ 1007  sudo mkdir /packages/encap/python-2.7.13
+ 1008  sudo chown `id -un`:`id -gn` /packages/encap/python-2.7.13
+ 1009  sudo rmdir /packages/encap/python-2.7.13
+ 1010  mkdir /var/tmp/python_install
+ 1011  make install DESTDIR=/var/tmp/python_install
+ 1012  ls /var/tmp/python_install/
+ 1013  mv /var/tmp/python_install/usr/local /var/tmp/python-2.7.13
+ 1014  sudo chown -R root:root /var/tmp/python-2.7.13
+ 1015  sudo mv /var/tmp/python-2.7.13 /packages/encap
+ 1016  sudo epkg python-2.7.13
+ 1017  python -V
+ 1018  python -c1
+ 1019  perl -pi.orig -e 's,default_home = NULL,default_home = "/usr/local",' Python/pythonrun.c
+ 1020  make
+ 1021  find . -type f | xargs grep /usr/local
+ 1022  find . -type f | xargs grep -l /usr/local
+ 1023  find . -type f -print0 | xargs -0 grep -l /usr/local
+ 1024  ls /var/tmp/python_install
+ 1025  make install DESTDIR=/var/tmp/python_install
+ 1026  ls /var/tmp/python_install/
+ 1027  ls /var/tmp/python_install/usr/local
+ 1028  sudo mv /var/tmp/python_install/usr/local /var/tmp/python-2.7.13
+ 1029  diff <(cd /packages/encap && find python-2.7.13 -type f | sort) <(cd /var/tmp && find python-2.7.13 -type f | sort)
+ 1030  sudo epkg -r python-2.7.13
+ 1031  sudo mv /packages/encap/python-2.7.13 /var/tmp/python-2.7.13_orig
+ 1032  sudo chown -R root:root /var/tmp/python-2.7.13
+ 1033  sudo mv /var/tmp/python-2.7.13 /packages/encap
+ 1034  sudo epkg python-2.7.13
+ 1035  python -c1
+ 1036  history
+ 1037  history | tail -40
+ 1038  history | tail -40 > ~/work/build_recipes/python.txt

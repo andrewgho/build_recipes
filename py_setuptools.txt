@@ -1,0 +1,30 @@
+ 1039  ls
+ 1040  cd ..
+ 1041  ls
+ 1042  mkdir py
+ 1043  cd py
+ 1044  ls
+ 1045  wget https://pypi.python.org/packages/c3/38/d95ddb6cc8558930600be088e174a2152261a1e0708a18bf91b5b8c90b22/requests-2.18.3.tar.gz
+ 1046  tar fxvz requests-2.18.3.tar.gz 
+ 1047  cd requests-2.18.3
+ 1048  ls
+ 1049  python setup.py install --prefix=/var/tmp/py_requests-2.18.3_py2.7 --single-version-externally-managed --record=/dev/null
+ 1050  cd ..
+ 1051  wget https://pypi.python.org/packages/07/a0/11d3d76df54b9701c0f7bf23ea9b00c61c5e14eb7962bb29aed866a5844e/setuptools-36.2.7.zip#md5=b9e6c049617bac0f9e908a41ab4a29ac
+ 1052  unzip setuptools-36.2.7.zip 
+ 1053  cd setuptools-36.2.7
+ 1054  ls
+ 1055  mkdir -p /tmp/py_setuptools-36.2.7_py2.7/lib/python2.7/site-packages
+ 1056  PYTHONATH=/tmp/py_setuptools-36.2.7_py2.7/lib/python2.7/site-packages/ /usr/local/bin/python setup.py install --prefix=/tmp/py_setuptools-36.2.7_py2.7 --record=/dev/null
+ 1057  (export PYTHONATH=/tmp/py_setuptools-36.2.7_py2.7/lib/python2.7/site-packages/ && /usr/local/bin/python setup.py install --prefix=/tmp/py_setuptools-36.2.7_py2.7 --record=/dev/null)
+ 1058  PYTHONPATH=/tmp/py_setuptools-36.2.7_py2.7/lib/python2.7/site-packages/ /usr/local/bin/python setup.py install --prefix=/tmp/py_setuptools-36.2.7_py2.7 --record=/dev/null
+ 1059  ls /tmp/py_setuptools-36.2.7_py2.7/
+ 1060  sudo chown -R root:root /tmp/py_setuptools-36.2.7_py2.7
+ 1061  sudo mv /tmp/py_setuptools-36.2.7_py2.7 /packages/encap
+ 1062  sudo epkg py_setuptools-36.2.7_py2.7
+ 1063  cd
+ 1064  cd install/py
+ 1065  ls
+ 1066  history
+ 1067  history | tail -30
+ 1068  history | tail -30 > ~/work/build_recipes/py_setuptools.txt

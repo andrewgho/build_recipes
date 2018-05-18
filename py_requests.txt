@@ -1,0 +1,15 @@
+ 1045  wget https://pypi.python.org/packages/c3/38/d95ddb6cc8558930600be088e174a2152261a1e0708a18bf91b5b8c90b22/requests-2.18.3.tar.gz
+ 1046  tar fxvz requests-2.18.3.tar.gz 
+ 1047  cd requests-2.18.3
+ 1049  python setup.py install --prefix=/var/tmp/py_requests-2.18.3_py2.7 --single-version-externally-managed --record=/dev/null
+ 1070  cd requests-2.18.3
+ 1072  python setup.py install --prefix=/var/tmp/py_requests-2.18.3_py2.7 --single-version-externally-managed --record=/dev/null
+ 1073  sudo chown -R root:root /var/tmp/py_requests-2.18.3_py2.7
+ 1074  sudo mv /var/tmp/py_requests-2.18.3_py2.7 /packages/encap
+ 1075  sudo epkg py_requests-2.18.3_py2.7
+ 1077  python -lrequests
+ 1078  python -m requests
+ 1079  python -m urllib3 -m requests
+ 1080  python -m urllib2 -m requests
+ 1085  history | grep requests
+ 1086  history | grep requests > ~/work/build_recipes/py_requests.txt
