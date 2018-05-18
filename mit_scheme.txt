@@ -1,0 +1,9 @@
+wget http://ftp.gnu.org/gnu/mit-scheme/stable.pkg/9.2/mit-scheme-9.2-x86-64.tar.gz
+tar fxvz mit-scheme-9.2-x86-64.tar.gz
+
+(cd mit-scheme-9.2/src && vbuild)
+
+mv /var/tmp/src /var/tmp/mit_scheme-9.2
+sudo chown -R root:root /var/tmp/mit_scheme-9.2
+sudo mv /var/tmp/mit_scheme-9.2 /packages/encap/mit_scheme-9.2
+sudo epkg mit_scheme-9.2
