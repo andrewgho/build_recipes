@@ -1,0 +1,3 @@
+# Requires onig
+
+vbuild -i https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz
