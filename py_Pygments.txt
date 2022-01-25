@@ -1,0 +1,14 @@
+# Pygments 2.5.2 is last version that supports Python 2.7 as per:
+# https://github.com/pygments/pygments/blob/master/CHANGES
+
+# Download link from: https://pypi.org/project/Pygments/2.5.2/
+wget https://files.pythonhosted.org/packages/cb/9f/27d4844ac5bf158a33900dbad7985951e2910397998e85712da03ce125f0/Pygments-2.5.2.tar.gz
+tar fxvz Pygments-2.5.2.tar.gz
+pushd Pygments-2.5.2
+python setup.py install --prefix=/var/tmp/py_$(basename $(pwd))_py2.7 --single-version-externally-managed --record=/dev/null
+popd
+sudo chown -R root:root /var/tmp/py_Pygments-2.5.2_py2.7
+sudo mv /var/tmp/py_Pygments-2.5.2_py2.7 /packages/encap
+sudo epkg py_Pygments-2.5.2_py2.7
+
+pygmentize -h
