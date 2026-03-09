@@ -1,0 +1,10 @@
+wget https://go.dev/dl/go1.26.1.linux-amd64.tar.gz
+mkdir /var/tmp/go-1.26.1
+cat go1.26.1.linux-amd64.tar.gz | (cd /var/tmp/go-1.26.1 && tar fxvz -)
+
+sudo chown -R root:root /var/tmp/go-1.26.1
+sudo mv /var/tmp/go-1.26.1 /packages/encap
+sudo epkg go-1.26.1
+
+# Add /usr/local/go/bin to $PATH
+go version
