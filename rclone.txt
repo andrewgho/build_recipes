@@ -1,0 +1,254 @@
+RCLONE BUILD RECIPE FOR CENTOS 6
+=================================
+Building rclone v1.53.4 with FUSE mount support for CentOS 6 (kernel 2.6.32),
+cross-compiled on Apple Silicon Mac using Colima/QEMU/Docker.
+
+Background: rclone v1.53.4 is the newest version whose bazil.org/fuse
+dependency predates the April 15, 2020 commit that raised the minimum
+kernel FUSE protocol version to 7.15. CentOS 6's kernel 2.6.32 only
+supports FUSE protocol 7.14, so versions v1.54.0 and later will fail
+with "kernel FUSE version is too old: 7.14 < 7.15". Additionally,
+rclone v1.62.0 and later require FUSE3/fusermount3, which CentOS 6 does
+not provide.
+
+
+PART 1: MAC PREREQUISITES
+--------------------------
+Install Colima (lightweight Docker runtime) and the Docker CLI via
+Homebrew. Docker Desktop is not required.
+
+    brew install colima docker docker-buildx
+
+Since the target machine (alleycat) is amd64 but the Mac is Apple
+Silicon (aarch64), Colima must be started in x86_64 emulation mode via
+QEMU. This is slower than native but produces a correctly targeted
+binary. Note that architecture cannot be changed after initial setup, so
+if you have an existing Colima instance you must delete it first.
+
+    colima delete          # if a prior instance exists
+    colima start --cpu 4 --memory 8 --disk 20 --arch x86_64
+
+Verify the emulation is working:
+
+    docker info | grep Architecture
+    # should show: x86_64
+
+
+PART 2: BUILD ENVIRONMENT (INSIDE DOCKER)
+------------------------------------------
+Pull and start a CentOS 6 container:
+
+    docker run -it --name rclone-build centos:6 bash
+
+All subsequent commands in this section are run inside the container.
+
+CentOS 6 is end-of-life so its package mirrors are dead. Redirect yum
+to the vault archive:
+
+    sed -i 's/mirror.centos.org/vault.centos.org/g' \
+        /etc/yum.repos.d/*.repo
+    sed -i 's/^mirrorlist/#mirrorlist/g' \
+        /etc/yum.repos.d/*.repo
+    sed -i 's/^#baseurl/baseurl/g' \
+        /etc/yum.repos.d/*.repo
+
+Install build prerequisites including fuse-devel (required for CGO
+FUSE bindings):
+
+    yum install -y gcc gcc-c++ git wget tar fuse-devel
+
+Install the Software Collections (SCL) repository to get a newer GCC.
+CentOS 6 ships GCC 4.4, which lacks C11 atomic builtins required by
+modern Go's CGO runtime. GCC 7.x from devtoolset-7 is needed.
+
+    yum install -y centos-release-scl
+
+    # The SCL packages add new repo files pointing at dead mirrors,
+    # so patch those too:
+    sed -i 's/mirror.centos.org/vault.centos.org/g' \
+        /etc/yum.repos.d/*.repo
+    sed -i 's/^mirrorlist/#mirrorlist/g' \
+        /etc/yum.repos.d/*.repo
+    sed -i 's/^#baseurl/baseurl/g' \
+        /etc/yum.repos.d/*.repo
+
+    # The SCLo RH repo file also needs manual fixing:
+    cat > /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo << 'EOF'
+[centos-sclo-rh]
+name=CentOS-6 - SCLo rh
+baseurl=http://vault.centos.org/6.10/sclo/x86_64/rh/
+gpgcheck=0
+enabled=1
+EOF
+
+    # Similarly for the SCLo sclo repo:
+    cat > /etc/yum.repos.d/CentOS-SCLo-scl.repo << 'EOF'
+[centos-sclo-sclo]
+name=CentOS-6 - SCLo sclo
+baseurl=http://vault.centos.org/6.10/sclo/x86_64/sclo/
+gpgcheck=0
+enabled=1
+EOF
+
+    yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++
+
+Install Go. Use the same version as on the target machine (alleycat
+was running go1.26.1 installed from the upstream tarball):
+
+    wget https://go.dev/dl/go1.26.1.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.26.1.linux-amd64.tar.gz
+    export PATH=$PATH:/usr/local/go/bin
+    go version
+
+
+PART 3: BUILD RCLONE v1.53.4
+------------------------------
+Still inside the container. Activate devtoolset-7 (required each time
+you start a new shell session in the container):
+
+    scl enable devtoolset-7 bash
+
+Clone rclone and check out v1.53.4:
+
+    git clone https://github.com/rclone/rclone.git /rclone-1.53.4
+    cd /rclone-1.53.4
+    git checkout v1.53.4
+
+Build with CGO enabled and the cmount tag, which pulls in the FUSE
+mount implementation. The -buildvcs=false flag suppresses a git
+ownership error that occurs inside Docker:
+
+    CGO_ENABLED=1 go build -buildvcs=false -tags cmount -o rclone .
+
+Verify the binary and confirm it links against libfuse:
+
+    ./rclone version
+    ldd ./rclone | grep fuse
+    # should show: libfuse.so.2 => /lib64/libfuse.so.2 (...)
+
+
+PART 4: COPY BINARY TO ALLEYCAT
+---------------------------------
+On your Mac (in a new terminal, outside the container):
+
+    docker cp rclone-build:/rclone-1.53.4/rclone ~/rclone-centos6
+    scp ~/rclone-centos6 alleycat:bin/rclone
+    ssh alleycat rclone version
+
+Prerequisites on alleycat before the mount will work:
+  - fuse and fuse-libs packages installed (yum install fuse fuse-libs)
+  - Your user must be in the fuse group:
+        sudo usermod -a -G fuse andrew
+    Then start a fresh SSH session (kill any existing ControlMaster
+    socket first: ssh -O exit alleycat)
+  - fusermount must be setuid root and group-executable by the fuse
+    group (the default CentOS 6 install does this correctly)
+
+
+PART 5: CONFIGURE RCLONE FOR DROPBOX
+--------------------------------------
+The Dropbox OAuth flow requires a browser, which is not available on
+the headless alleycat server. Configure rclone on your Mac first, then
+copy the config file to alleycat.
+
+On your Mac, install rclone:
+
+    brew install rclone
+
+Run interactive configuration:
+
+    rclone config
+
+At the prompts:
+  - Press n for new remote
+  - Name it: dropbox
+  - Select Dropbox from the storage type list
+  - Press Enter to skip client_id and client_secret (uses built-in)
+  - Press Enter to skip advanced config
+  - Press y for auto config (opens browser for OAuth)
+  - Log in to Dropbox and authorize rclone
+  - Confirm and quit with q
+
+Verify it works:
+
+    rclone lsd dropbox:
+
+Copy the config to alleycat:
+
+    ssh alleycat "mkdir -p ~/.config/rclone"
+    scp ~/.config/rclone/rclone.conf \
+        alleycat:.config/rclone/rclone.conf
+
+Verify on alleycat:
+
+    rclone lsd dropbox:
+
+
+PART 6: START RCLONE MOUNT ON ALLEYCAT
+----------------------------------------
+The following script checks whether the mount is already running before
+starting it, making it safe to call from cron or rc.local:
+
+    #!/bin/bash
+    # start_rclone - start rclone against Dropbox
+    # Andrew Ho <andrew@zeuscat.com>
+
+    pgrep -fx 'rclone mount dropbox:.*' > /dev/null ||
+    exec rclone mount dropbox: ~/Dropclone \
+      --vfs-cache-mode full \
+      --dir-cache-time 5s \
+      --daemon \
+      --log-file /home/andrew/.rclone_mount.log \
+      --log-level INFO
+
+Key flag notes:
+  --vfs-cache-mode full   Cache files locally for both reads and writes.
+                          Required for consistent read behavior: without
+                          this, rclone may serve stale file content even
+                          after detecting a changed mtime/size.
+  --dir-cache-time 5s     Expire directory listings after 5 seconds so
+                          changes from other devices appear promptly on
+                          the next filesystem access. Does not poll in
+                          the background; API calls only happen on
+                          demand.
+  --daemon                Detach from terminal and run in background.
+  --log-file              Without this, daemon mode silently discards
+                          all log output.
+
+To start at boot, add to crontab (crontab -e):
+
+    @reboot /home/andrew/bin/start_rclone
+
+To unmount:
+
+    fusermount -u ~/Dropclone
+
+
+NOTES
+------
+- The rclone.conf contains your Dropbox OAuth token. Back it up.
+- Do not upgrade rclone on alleycat without testing: versions v1.54.0
+  and later will fail with the CentOS 6 kernel FUSE version constraint.
+- The Docker container (rclone-build) can be kept for future rebuilds:
+      docker start -i rclone-build
+      scl enable devtoolset-7 bash
+  Remember to re-export PATH for Go each session.
+- The Colima VM must be x86_64. If recreating, use:
+      colima delete && colima start --cpu 4 --memory 8 \
+          --disk 20 --arch x86_64
+
+SELECTED HISTORY
+----------------
+
+  brew install colima docker docker-buildx qemu
+  colima start --cpu 4 --memory 8 --disk 20 --arch x86_64
+  colima status
+  docker run -it --name rclone-build centos:6 bash
+
+  docker ps
+  docker stop rclone-build
+  docker container ls
+  docker rm rclone-build
+  colima stop
+  colima delete
+
