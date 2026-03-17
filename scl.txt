@@ -1,0 +1,21 @@
+sudo yum install centos-release-scl
+
+cat > /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo <<EOF
+[centos-sclo-rh]
+name=CentOS-6 - SCLo rh
+baseurl=http://vault.centos.org/6.10/sclo/x86_64/rh/
+gpgcheck=0
+enabled=1
+EOF
+
+cat > /etc/yum.repos.d/CentOS-SCLo-scl.repo <<EOF
+[centos-sclo-sclo]
+name=CentOS-6 - SCLo sclo
+baseurl=http://vault.centos.org/6.10/sclo/x86_64/sclo/
+gpgcheck=0
+enabled=1
+EOF
+
+yum list available | grep devtoolset
+sudo yum install devtoolset-7
+scl enable devtoolset-7 bash
