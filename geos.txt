@@ -1,0 +1,22 @@
+source /opt/rh/devtoolset-7/enable
+gcc --version  # should show 7.3.1
+
+wget https://download.osgeo.org/geos/geos-3.14.1.tar.bz2
+tar ftvj geos-3.14.1.tar.bz2
+
+pushd geos-3.14.1
+mkdir build
+pushd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+make install DESTDIR=/var/tmp/geos_install
+mv /var/tmp/geos_install/usr/local /var/tmp/geos-3.14.1
+rmdir /var/tmp/geos_install/usr /var/tmp/geos_install
+popd
+popd
+
+sudo chown -R root:root /var/tmp/geos-3.14.1
+sudo mv /var/tmp/geos-3.14.1 /packages/encap
+sudo epkg geos-3.14.1
+
+geosop -h

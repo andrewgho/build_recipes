@@ -1,0 +1,14 @@
+source /opt/rh/devtoolset-7/enable
+gcc --version  # should show 7.3.1
+
+wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz
+tar fxvz openssl-1.1.1w.tar.gz
+
+pushd openssl-1.1.1w
+./config --prefix=/opt/openssl-1.1.1w --openssldir=/opt/openssl-1.1.1w/ssl shared zlib
+make -j$(nproc)
+sudo mkdir /opt/openssl-1.1.1w
+sudo chown $(id -nu):$(id -ng) /opt/openssl-1.1.1w
+make install
+sudo chown -R root:root /opt/openssl-1.1.1w
+popd

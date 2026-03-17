@@ -1,0 +1,14 @@
+sudo yum install devtoolset-9
+
+source /opt/rh/devtoolset-9/enable
+gcc --version   # expect 9.3.1
+
+pip3 install numpy==1.26.4 --no-binary numpy \
+    --prefix=/var/tmp/py3_numpy-1.26.4_py3.11
+
+sudo chown -R root:root /var/tmp/py3_numpy-1.26.4_py3.11
+sudo mv /var/tmp/py3_numpy-1.26.4_py3.11 /packages/encap/
+sudo epkg py3_numpy-1.26.4_py3.11
+
+python3 -c 'import numpy; print(numpy.__version__)'
+f2py -v

@@ -1,0 +1,61 @@
+source /opt/rh/devtoolset-7/enable
+gcc --version  # should show 7.3.1
+
+epkg libffi-3.2.1  # upgrade from libffi-3.0.13 on system
+
+wget https://www.python.org/ftp/python/3.11.15/Python-3.11.15.tgz
+tar fxvz Python-3.11.15.tgz
+
+pushd Python-3.11.15
+./configure \
+    --prefix=/opt/python-3.11.15 \
+    --with-openssl=/opt/openssl-1.1.1w \
+    --with-openssl-rpath=auto \
+    --enable-optimizations \
+    --with-ensurepip=install \
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
+    LDFLAGS="-L/usr/local/lib64 -Wl,-rpath,/usr/local/lib64" \
+    CPPFLAGS="-I/usr/local/include"
+make -j3
+sudo mkdir /opt/python-3.11.15
+sudo chown $(id -nu):$(id -ng) /opt/python-3.11.15
+make altinstall     # installs python3.11, pip3.11; does NOT touch /usr/bin/python
+echo /usr/local/lib/python3.11/site-packages > \
+/opt/python-3.11.15/lib/python3.11/site-packages/usr_local.pth
+sudo chown -R root:root /opt/python-3.11.15
+popd
+
+sudo mkdir -p /usr/local/lib/python3.11/site-packages
+
+# Should show the Python version as 3.11.15
+/opt/python-3.11.15/bin/python3.11 -VV
+
+# Should include /usr/local/lib/python3.11/site-packages
+/opt/python-3.11.15/bin/python3.11 -c 'import sys; print(sys.path)'
+
+# Now encap it (poorly)
+sudo sh -c 'cd /opt/python-3.11.15/bin &&
+    ln -s python3.11 python3 &&
+    ln -s pip3.11 pip3 &&
+    ln -s pydoc3.11 pydoc3'
+sudo sh -c 'cd /opt/python-3.11.15/share/man/man1 &&
+    ln -s python3.11.1 python3.11'
+sudo mv /opt/python-3.11.15 /packages/encap/python3-3.11.15
+sudo epkg python3-3.11.15
+
+# Need this hacky symlink because sys.prefix is hardcoded above
+sudo ln -s /packages/encap/python3-3.11.15 /opt/python3-3.11.15
+
+# TODO: or can usr_local.pth add the non-site-packages path?
+
+# Python works?
+python3 -V
+
+# Standard library works?
+python3 -c 'import uuid; print(uuid.uuid4())'
+
+# Site library (built-in) works?
+python3 -c 'import setuptools; print(setuptools.__version__)'
+
+# Site library (non-built-in) works? (shapely recipe)
+python3 -c 'import shapely; print(shapely.__version__)'

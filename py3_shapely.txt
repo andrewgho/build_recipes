@@ -1,0 +1,15 @@
+sudo yum install devtoolset-9
+
+source /opt/rh/devtoolset-9/enable
+gcc --version   # expect 9.3.1
+
+# Make sure py3_cython and py3_numpy are linked
+
+pip3 install shapely --no-binary shapely --no-build-isolation \
+    --prefix=/var/tmp/py3_shapely-2.1.2_py3.11
+
+sudo chown -R root:root /var/tmp/py3_shapely-2.1.2_py3.11
+sudo mv /var/tmp/py3_shapely-2.1.2_py3.11 /packages/encap/
+sudo epkg py3_shapely-2.1.2_py3.11
+
+python3 -c 'import shapely; print(shapely.__version__)'

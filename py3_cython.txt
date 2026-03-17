@@ -1,0 +1,8 @@
+pip3 install cython --prefix=/var/tmp/py3_cython-3.2.4_py3.11
+
+sudo chown -R root:root /var/tmp/py3_cython-3.2.4_py3.11
+sudo mv /var/tmp/py3_cython-3.2.4_py3.11 /packages/encap/
+sudo epkg py3_cython-3.2.4_py3.11
+
+python3 -c 'import cython; print(cython.__version__)'
+cython -V
