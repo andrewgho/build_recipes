@@ -1,1 +1,23 @@
+# For a very old version that could be built with CentOS 6 system-provided GCC
+
 vbuild -i http://www.cmake.org/files/v2.8/cmake-2.8.12.tar.gz
+
+
+# For a still old but newer version that can build with SCL-provided GCC 7
+
+source /opt/rh/devtoolset-7/enable
+gcc --version  # should show 7.3.1
+
+wget https://github.com/Kitware/CMake/releases/download/v3.31.11/cmake-3.31.11.tar.gz
+tar fxvz cmake-3.31.11.tar.gz
+pushd cmake-3.31.11
+./bootstrap --prefix=/var/tmp/cmake-3.31.11 --parallel=$(nproc)
+make -j$(nproc)
+make install
+popd
+
+sudo chown -R root:root /var/tmp/cmake-3.31.11
+sudo mv /var/tmp/cmake-3.31.11 /packages/encap
+sudo epkg cmake-3.31.11
+
+cmake --version  # should show 3.31.11
